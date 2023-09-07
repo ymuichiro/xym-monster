@@ -127,7 +127,7 @@ export function Start(): JSX.Element {
       // ゲットモンスターページへ遷移する、aLiceの場合はsigned_payloadにaLiceの値をセットする
       router.push({
         query: { signed_payload },
-        pathname: '/gacha/get-monster',
+        pathname: '/get',
       });
     } catch (error) {
       // エラーハンドリング

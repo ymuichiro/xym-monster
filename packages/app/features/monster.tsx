@@ -174,7 +174,7 @@ export function Monster(props: PaymentActionAnnounceProps) {
             <Lottie source={EggAnimation} autoPlay loop style={{ height: 300, width: 300, margin: '0 auto' }} />
             <Button onPress={()=>{
               router.push({
-                pathname: '/gacha/start',
+                pathname: '/',
               });
             }}>START</Button>
           </YStack>
