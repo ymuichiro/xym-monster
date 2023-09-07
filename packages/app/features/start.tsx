@@ -46,7 +46,7 @@ const BACKEND = TransactionService.BACKEND;
 /**
  * ガチャアプリの起動、メッセージ入力の画面
  */
-export function CapselToyStart(): JSX.Element {
+export function Start(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpenAlertDialogNothingPuclicKey, setIsOpenAlertDialogNothingPuclicKey] = useState<boolean>(false);
   const [publicKey, setPublicKey] = useState<string>('');

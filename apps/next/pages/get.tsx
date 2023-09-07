@@ -3,7 +3,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-const GetMonster = dynamic(() => import('app/features/gacha/get-monster').then((e) => e.GetTreasure), {
+const GetMonster = dynamic(() => import('app/features/monster').then((e) => e.Monster), {
   ssr: false,
   loading: () => <div>loading...</div>,
 });

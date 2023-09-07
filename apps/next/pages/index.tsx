@@ -1,18 +1,18 @@
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 
-const HomeScreen = dynamic(() => import('app/features/home/screen').then((e) => e.HomeScreen), {
+const KapselToyStartScreen = dynamic(() => import('app/features/start').then((e) => e.Start), {
   ssr: false,
   loading: () => <div>loading...</div>,
 });
 
-export default function Page() {
+export default function GachaStartPage() {
   return (
     <>
       <Head>
-        <title>Home</title>
+        <title>XYM Monster</title>
       </Head>
-      <HomeScreen />
+      <KapselToyStartScreen />
     </>
   );
 }

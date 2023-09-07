@@ -1,5 +1,5 @@
 {
-  "name": "next-expo-solito-monorepo",
+  "name": "xym-monster",
   "private": true,
   "workspaces": [
     "apps/*",

@@ -15306,29 +15306,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"next-expo-solito-monorepo@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "next-expo-solito-monorepo@workspace:."
-  dependencies:
-    "@babel/runtime": ^7.18.9
-    "@manypkg/cli": ^0.19.1
-    "@zxing/browser": ^0.1.4
-    "@zxing/library": ^0.20.0
-    check-dependency-version-consistency: ^3.0.3
-    eslint: ^8.21.0
-    lottie-react-native: ^6.0.1
-    node-gyp: ^9.3.1
-    prettier: ^2.7.1
-    react-native-web-lottie: ^1.4.4
-    rimraf: ^5.0.1
-    sharp: ^0.32.4
-    sss-module: ^1.0.4
-    turbo: ^1.10.3
-    typescript: ^5.1.3
-    ws: 8.13.0
-  languageName: unknown
-  linkType: soft
-
 "next@npm:13.4.4":
   version: 13.4.4
   resolution: "next@npm:13.4.4"
@@ -21001,6 +20978,29 @@ vercel@latest:
   checksum: ac5dfa738b21f6e7f0dd6e65e1b3155036d68104e67e5d5d1bde74892e327d7e5636a076f625599dc394330a731861e87343ff184b0047fef1360a7ec0a5a36a
   languageName: node
   linkType: hard
+
+"xym-monster@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "xym-monster@workspace:."
+  dependencies:
+    "@babel/runtime": ^7.18.9
+    "@manypkg/cli": ^0.19.1
+    "@zxing/browser": ^0.1.4
+    "@zxing/library": ^0.20.0
+    check-dependency-version-consistency: ^3.0.3
+    eslint: ^8.21.0
+    lottie-react-native: ^6.0.1
+    node-gyp: ^9.3.1
+    prettier: ^2.7.1
+    react-native-web-lottie: ^1.4.4
+    rimraf: ^5.0.1
+    sharp: ^0.32.4
+    sss-module: ^1.0.4
+    turbo: ^1.10.3
+    typescript: ^5.1.3
+    ws: 8.13.0
+  languageName: unknown
+  linkType: soft
 
 "y18n@npm:^4.0.0":
   version: 4.0.3

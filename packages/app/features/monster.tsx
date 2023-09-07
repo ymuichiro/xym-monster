@@ -1,13 +1,13 @@
 import { DialogBase, Input, Paragraph, Spinner, View, XStack, YStack } from '@my/ui';
 import { Button } from '@tamagui/button';
-import { Copy, ClipboardPaste } from '@tamagui/lucide-icons';
+import { ClipboardPaste, Copy } from '@tamagui/lucide-icons';
 import CrackerAnimation from 'app/assets/jsons/cracker-animation.json';
 import EggAnimation from 'app/assets/jsons/egg-2-animation.json';
 import LoadingAnimalAnimation from 'app/assets/jsons/loading-animal-animation.json';
 import Lottie from 'lottie-react-native';
 import React, { useEffect, useState } from 'react';
-import { TransactionService, MonsterRarity } from 'symbol';
 import { useRouter } from 'solito/router';
+import { MonsterRarity, TransactionService } from 'symbol';
 
 interface PaymentActionAnnounceProps {
   payload: string;
@@ -16,7 +16,7 @@ interface PaymentActionAnnounceProps {
 // nodeUrlはBrowserStorageから取得する
 const node = 'https://mikun-testnet.tk:3001';
 
-export function GetTreasure(props: PaymentActionAnnounceProps) {
+export function Monster(props: PaymentActionAnnounceProps) {
   const [hash, setHash] = useState<string>('');
   const [payload, setPayload] = useState<string>('');
   const [isGettingMonster , setIsGettingMonster] = useState<boolean>(false);
