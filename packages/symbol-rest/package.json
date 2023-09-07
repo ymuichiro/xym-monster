@@ -1,0 +1,18 @@
+{
+  "name": "symbol-rest",
+  "description": "symbol rest gateway open api specification",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "types",
+    "package.json"
+  ],
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "^2.5.2"
+  },
+  "scripts": {
+    "_build": "rimraf dist && openapi-generator-cli generate && tsc --build tsconfig.json"
+  }
+}

@@ -1,0 +1,22 @@
+export declare const ReceiptTypeEnum: {
+    readonly NUMBER_4685: 4685;
+    readonly NUMBER_4942: 4942;
+    readonly NUMBER_8515: 8515;
+    readonly NUMBER_8776: 8776;
+    readonly NUMBER_9032: 9032;
+    readonly NUMBER_8786: 8786;
+    readonly NUMBER_9042: 9042;
+    readonly NUMBER_12616: 12616;
+    readonly NUMBER_12626: 12626;
+    readonly NUMBER_16717: 16717;
+    readonly NUMBER_16718: 16718;
+    readonly NUMBER_16974: 16974;
+    readonly NUMBER_20803: 20803;
+    readonly NUMBER_57667: 57667;
+    readonly NUMBER_61763: 61763;
+    readonly NUMBER_62019: 62019;
+};
+export type ReceiptTypeEnum = typeof ReceiptTypeEnum[keyof typeof ReceiptTypeEnum];
+export declare function ReceiptTypeEnumFromJSON(json: any): ReceiptTypeEnum;
+export declare function ReceiptTypeEnumFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReceiptTypeEnum;
+export declare function ReceiptTypeEnumToJSON(value?: ReceiptTypeEnum | null): any;

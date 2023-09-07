@@ -1,0 +1,34 @@
+export interface ChainPropertiesDTO {
+    enableVerifiableState?: boolean;
+    enableVerifiableReceipts?: boolean;
+    currencyMosaicId?: string;
+    harvestingMosaicId?: string;
+    blockGenerationTargetTime?: string;
+    blockTimeSmoothingFactor?: string;
+    blockFinalizationInterval?: string;
+    importanceGrouping?: string;
+    importanceActivityPercentage?: string;
+    maxRollbackBlocks?: string;
+    maxDifficultyBlocks?: string;
+    defaultDynamicFeeMultiplier?: string;
+    maxTransactionLifetime?: string;
+    maxBlockFutureTime?: string;
+    initialCurrencyAtomicUnits?: string;
+    maxMosaicAtomicUnits?: string;
+    totalChainImportance?: string;
+    minHarvesterBalance?: string;
+    maxHarvesterBalance?: string;
+    minVoterBalance?: string;
+    maxVotingKeysPerAccount?: string;
+    minVotingKeyLifetime?: string;
+    maxVotingKeyLifetime?: string;
+    harvestBeneficiaryPercentage?: string;
+    harvestNetworkPercentage?: string;
+    harvestNetworkFeeSinkAddress?: string;
+    blockPruneInterval?: string;
+    maxTransactionsPerBlock?: string;
+}
+export declare function instanceOfChainPropertiesDTO(value: object): boolean;
+export declare function ChainPropertiesDTOFromJSON(json: any): ChainPropertiesDTO;
+export declare function ChainPropertiesDTOFromJSONTyped(json: any, ignoreDiscriminator: boolean): ChainPropertiesDTO;
+export declare function ChainPropertiesDTOToJSON(value?: ChainPropertiesDTO | null): any;

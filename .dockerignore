@@ -1,0 +1,7 @@
+node_modules
+**/node_modules
+packages/symbol/dist
+packages/ui/dist
+.yarn/cache
+.yarn/install-state.gz
+**/.next
