@@ -4,6 +4,7 @@ import { ClipboardPaste, Copy } from '@tamagui/lucide-icons';
 import CrackerAnimation from 'app/assets/jsons/cracker-animation.json';
 import EggAnimation from 'app/assets/jsons/egg-2-animation.json';
 import LoadingAnimalAnimation from 'app/assets/jsons/loading-animal-animation.json';
+import { getEnumKeyByEnumValue } from 'app/services/common';
 import Lottie from 'lottie-react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
@@ -202,9 +203,4 @@ export function Monster(props: MonsterProps) {
       </YStack>
     );
   }
-}
-
-function getEnumKeyByEnumValue(enumType: any, enumValue: any): string | undefined {
-  const keys = Object.keys(enumType).filter((key) => enumType[key] === enumValue);
-  return keys.length > 0 ? keys[0] : undefined;
 }

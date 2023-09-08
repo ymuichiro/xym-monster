@@ -10,7 +10,9 @@
     "package.json"
   ],
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.5.2"
+    "@openapitools/openapi-generator-cli": "^2.5.2",
+    "rimraf": "^5.0.1",
+    "typescript": "^5.2.2"
   },
   "scripts": {
     "_build": "rimraf dist && openapi-generator-cli generate && tsc --build tsconfig.json"
