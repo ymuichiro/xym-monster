@@ -3,16 +3,14 @@ import { NetworkType } from './NetworkType';
 import Transaction from './Transaction';
 import isMobileDevice from '../utils/isMobileDevice';
 import TransactionBuilderService from '../services/TransactionBuilderService';
-import TransactionService from '../services/TransactionService';
 import { setMessage, requestSignEncription } from "sss-module";
 import AccountService from '../services/AccountService';
-import { utf8ToHex } from '../utils/converter';
-
-const BACKEND = TransactionService.BACKEND;
 
 export default class TransferTransaction extends Transaction{
   private recipientPublicKey?: string;
   constructor(
+      public readonly node: string,
+      public readonly backendUrl: string,
       public readonly networkType: NetworkType, 
       public readonly recipientAddress: string, 
       public readonly deadline?: BigInt, 
@@ -21,17 +19,14 @@ export default class TransferTransaction extends Transaction{
       public message?: string,
       public readonly isEncrypt?: boolean,
       ){
-      super(networkType, deadline, feeMultiplier)
+      super(node, networkType, deadline, feeMultiplier)
   }
 
   public override async build(){
     if(this.isEncrypt) {
-      // nodeUrlはsessionStorageから取得する// nodeUrlはBrowserStorageから取得する
-      const node = "https://mikun-testnet.tk:3001";
-
       // 受信者アドレスから公開鍵を取得する必要がある
       const accountService = new AccountService(this.recipientAddress);
-      const acc = await accountService.getAccountInfo(node);
+      const acc = await accountService.getAccountInfo(this.node);
       this.recipientPublicKey = acc.account.publicKey;
 
       // SSSの場合はここで暗号化する

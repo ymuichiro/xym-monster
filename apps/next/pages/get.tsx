@@ -21,7 +21,12 @@ export default function GetMonsterPage() {
       <Head>
         <title>Get Monster</title>
       </Head>
-      {isLoaded && <GetMonster payload={router.query.signed_payload as string} />}
+      {isLoaded && 
+        <GetMonster 
+          payload={router.query.signed_payload as string}
+          node={process.env.NEXT_PUBLIC_SYMBOL_NODE as string} 
+          backendUrl={process.env.NEXT_PUBLIC_BACKEND as string} 
+          publicSystemAddress={process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string} />}
     </>
   );
 }

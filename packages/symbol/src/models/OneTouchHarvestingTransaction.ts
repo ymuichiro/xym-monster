@@ -4,13 +4,15 @@ import TransactionBuilderService from '../services/TransactionBuilderService';
 
 export default class OneTouchHarvestingTransaction extends Transaction{
   constructor(
+    public readonly node: string,
+    public readonly backendUrl: string,
     public readonly publicKey: string,
     public readonly nodeUrl: string,
     public readonly networkType: NetworkType, 
     public readonly deadline?: BigInt, 
     public readonly feeMultiplier?: number, 
     ){
-    super(networkType, deadline, feeMultiplier)
+    super(node, networkType, deadline, feeMultiplier)
   }
 
   public override async build(){

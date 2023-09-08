@@ -7,12 +7,6 @@ import {
 } from 'symbol-rest';
 
 export default class TransactionService {
-  // ここは環境変数から取得するようにする
-  static BACKEND = "http://localhost:3000";
-  //static BACKEND = "http://192.168.10.4:3000";
-
-  constructor() {}
-
   static async getConfirmedTransaction(node: string, transactionId: string) {
     try {
       const transactionRoutesApi = new TransactionRoutesApi(
@@ -170,9 +164,9 @@ export default class TransactionService {
     }
   }
 
-  static async announceTransaction(node: string, payload: string) {
+  static async announceTransaction(node: string, backendUrl: string, payload: string) {
     try {
-      const url = new URL(`${this.BACKEND}/api/transactions/announce?node=${node}&payload=${payload}`);
+      const url = new URL(`${backendUrl}/api/transactions/announce?node=${node}&payload=${payload}`);
       const res = await fetch(url.toString());
       return res.json();
     } catch (e) {
@@ -184,9 +178,9 @@ export default class TransactionService {
     }
   }
 
-  static async getTreasure(node: string, hash: string) {
+  static async getTreasure(node: string, backendUrl: string, hash: string) {
     try {
-      const url = new URL(`${this.BACKEND}/api/gacha/lottery?hash=${hash}&node=${node}`);
+      const url = new URL(`${backendUrl}/api/gacha/lottery?hash=${hash}&node=${node}`);
       const res = await fetch(url.toString());
       return res.json();
     } catch (e) {

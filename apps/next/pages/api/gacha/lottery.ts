@@ -193,6 +193,7 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<any>{
     transaction.signature = new symbolSdk.symbol.Signature(signature.bytes);
     const transactionBuffer = transaction.serialize();
 	const hexPayload = symbolSdk.utils.uint8ToHex(transactionBuffer);
-    const result = await TransactionService.announceTransaction(node, hexPayload)
+    
+    const result = await TransactionService.announceTransaction(node, process.env.NEXT_PUBLIC_BACKEND!, hexPayload);
     return {result, "monsterName": monster?.name, "mosaicId": monster?.mosaicId, "rarity": monster?.rarity};
 }

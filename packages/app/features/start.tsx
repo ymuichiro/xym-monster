@@ -28,32 +28,34 @@ import {
   Mosaic,
   NetworkType,
   RareMonsters,
-  TransactionService,
   TransferTransaction,
   UncommonMonsters,
   isMobileDevice
 } from 'symbol';
+
+interface StartProps {
+  node: string;
+  backendUrl: string;
+  publicSystemAddress: string;
+}
 
 interface MosaicSelectProps {
   name: string;
   value: string;
 }
 
-// nodeUrlはBrowserStorageから取得する
-const node = 'https://mikun-testnet.tk:3001';
-const BACKEND = TransactionService.BACKEND;
-
 /**
  * ガチャアプリの起動、メッセージ入力の画面
  */
-export function Start(): JSX.Element {
+export function Start(props: StartProps): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isSSSInstaled, setIsSSSInstaled] = useState<boolean>(true);
   const [isOpenAlertDialogNothingPuclicKey, setIsOpenAlertDialogNothingPuclicKey] = useState<boolean>(false);
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none' }]);
   const router = useRouter();
-  const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS;
-  
+  const address = props.publicSystemAddress;
+
   useEffect(() => {
     const doAsyncTask = async () => {
       // モバイルでなければSSSから公開鍵を取得する
@@ -63,6 +65,7 @@ export function Start(): JSX.Element {
           const pubKey = getActivePublicKey();
           setPublicKey(pubKey);
         } else {
+          setIsSSSInstaled(false);
           console.log("SSS is not allowed.")
         }
       }
@@ -84,7 +87,7 @@ export function Start(): JSX.Element {
     // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
     const accountService = new AccountService(publicKey);
     const monsterService = new MonsterService(CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters);
-    accountService.getAccountInfo(node).then((accountInfo) => {
+    accountService.getAccountInfo(props.node).then((accountInfo) => {
       accountInfo.account.mosaics.forEach((mosaic) => {
         const monster = monsterService.getMonsterName(mosaic.id);
         if(monster != undefined) {
@@ -111,6 +114,8 @@ export function Start(): JSX.Element {
     }
 
     const transferTransaction = new TransferTransaction(
+      props.node,
+      props.backendUrl,
       NetworkType.TESTNET,
       address!,
       undefined,
@@ -142,6 +147,14 @@ export function Start(): JSX.Element {
 
   return (
     <YStack padding="$4" f={1}>
+      <AlertDialogMonster 
+        isOpen={!isSSSInstaled} 
+        hasAccept={true} 
+        hasCancel={false} 
+        title='Alert' 
+        description='SSS is not instaled. Please install SSS.' 
+        acceptText='OK'
+        onAccept={()=>setIsSSSInstaled(true)}></AlertDialogMonster>
       <AlertDialogMonster 
         isOpen={isOpenAlertDialogNothingPuclicKey} 
         hasAccept={true} 

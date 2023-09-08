@@ -3,6 +3,8 @@ import Transaction from './Transaction';
 import TransactionBuilderService from '../services/TransactionBuilderService';
 export default class MosaicTransaction extends Transaction{
   constructor(
+    public readonly node: string,
+    public readonly backendUrl: string,
     public readonly signerPublicKey: string,
     public readonly duration: BigInt,
     public readonly divisibility: number,
@@ -13,7 +15,7 @@ export default class MosaicTransaction extends Transaction{
     public readonly deadline?: BigInt, 
     public readonly feeMultiplier?: number, 
     ){
-    super(networkType, deadline, feeMultiplier)
+    super(node, networkType, deadline, feeMultiplier)
   }
 
   public override async build(){

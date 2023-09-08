@@ -9,14 +9,14 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
 import { MonsterRarity, TransactionService } from 'symbol';
 
-interface PaymentActionAnnounceProps {
+interface MonsterProps {
+  node: string;
+  backendUrl: string;
+  publicSystemAddress: string;
   payload: string;
 }
 
-// nodeUrlはBrowserStorageから取得する
-const node = 'https://mikun-testnet.tk:3001';
-
-export function Monster(props: PaymentActionAnnounceProps) {
+export function Monster(props: MonsterProps) {
   const [hash, setHash] = useState<string>('');
   const [payload, setPayload] = useState<string>('');
   const [isGettingMonster , setIsGettingMonster] = useState<boolean>(false);
@@ -40,7 +40,7 @@ export function Monster(props: PaymentActionAnnounceProps) {
         return;
       }
       // クエリにsigned payloadが存在する場合はトランザクション送信処理
-      TransactionService.announceTransaction(node, props.payload).then((result) => {
+      TransactionService.announceTransaction(props.node, props.backendUrl, props.payload).then((result) => {
         if (result.error) {
           // 失敗したら sheet modal を表示
           console.error(result.error);
@@ -68,7 +68,7 @@ export function Monster(props: PaymentActionAnnounceProps) {
   const handleGetTreasure = async () => {
     setIsGettingMonster(true);
     setIsGetTreasureLoading(true);
-    const res = await TransactionService.getTreasure(node, hash);
+    const res = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
     if (res.message.error) {
       console.error(res.message.error);
       setErrorMessage(res.message.error)
@@ -85,7 +85,7 @@ export function Monster(props: PaymentActionAnnounceProps) {
   };
 
   const handleAnnounce = () => {
-    TransactionService.announceTransaction(node, payload).then((result) => {
+    TransactionService.announceTransaction(props.node, props.backendUrl, payload).then((result) => {
       if (result.error) {
         // 失敗したら sheet modal を表示
         console.error(result.error);
