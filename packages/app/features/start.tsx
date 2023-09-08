@@ -14,8 +14,9 @@ import {
   YStack,
 } from '@my/ui';
 import EggAnimation from 'app/assets/jsons/egg-animation.json';
+import { getEnumKeyByEnumValue } from 'app/services/common';
 import Lottie from 'lottie-react-native';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
 import { getActivePublicKey, isAllowedSSS } from 'sss-module';
 import {
@@ -50,7 +51,7 @@ interface MosaicSelectProps {
 export function Start(props: StartProps): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSSSInstaled, setIsSSSInstaled] = useState<boolean>(true);
-  const [isOpenAlertDialogNothingPuclicKey, setIsOpenAlertDialogNothingPuclicKey] = useState<boolean>(false);
+  const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>("");
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none' }]);
   const router = useRouter();
@@ -66,7 +67,6 @@ export function Start(props: StartProps): JSX.Element {
           setPublicKey(pubKey);
         } else {
           setIsSSSInstaled(false);
-          console.log("SSS is not allowed.")
         }
       }
     };
@@ -80,7 +80,7 @@ export function Start(props: StartProps): JSX.Element {
   const hundleGameStart = async () => {
     if(publicKey == "") {
       // 公開鍵が取得できなかった場合はアラートを表示する
-      setIsOpenAlertDialogNothingPuclicKey(true);
+      setIsOpenAlertDialog("Please input you public key.");
       return;
     }
     
@@ -95,7 +95,9 @@ export function Start(props: StartProps): JSX.Element {
         }
         setIsOpen(!isOpen);
       })
-    });
+    }).catch(()=>{
+      setIsOpenAlertDialog("Unable to your account information.")
+    })
   };
 
   // セットした情報によりトランザクションを構築する
@@ -146,7 +148,7 @@ export function Start(props: StartProps): JSX.Element {
   };
 
   return (
-    <YStack padding="$4" f={1}>
+    <YStack f={1} padding={"$4"}>
       <AlertDialogMonster 
         isOpen={!isSSSInstaled} 
         hasAccept={true} 
@@ -154,15 +156,15 @@ export function Start(props: StartProps): JSX.Element {
         title='Alert' 
         description='SSS is not instaled. Please install SSS.' 
         acceptText='OK'
-        onAccept={()=>setIsSSSInstaled(true)}></AlertDialogMonster>
+        onAccept={()=>setIsSSSInstaled(true)}/>
       <AlertDialogMonster 
-        isOpen={isOpenAlertDialogNothingPuclicKey} 
+        isOpen={isOpenAlertDialog !== ""} 
         hasAccept={true} 
         hasCancel={false} 
         title='Alert' 
-        description='Please input you public key.' 
+        description={isOpenAlertDialog} 
         acceptText='OK'
-        onAccept={()=>setIsOpenAlertDialogNothingPuclicKey(false)}></AlertDialogMonster>
+        onAccept={()=>setIsOpenAlertDialog("")}/>
       <H2
         style={{
           color: '#ACB6E5',
@@ -179,8 +181,8 @@ export function Start(props: StartProps): JSX.Element {
       <Paragraph theme="alt1" size="$3" marginTop="$3">
         XYM Monster is a game where you can get a random XYM Monster by inscribing today's events on the blockchain.
       </Paragraph>
-      <Lottie source={EggAnimation} autoPlay loop style={{ height: 500 }} />
-      <YStack space={'$4'} width={'100%'}>
+      <Lottie source={EggAnimation} autoPlay loop style={{ height: 400 }} />
+      <YStack rowGap={"$4"}>
         <XStack jc="center">
           <Paragraph>Input your publicKey.</Paragraph>
         </XStack>
@@ -204,7 +206,6 @@ export function Start(props: StartProps): JSX.Element {
         <ReportModal
           items={ITEMS}
           onSubmit={(e) => {
-            console.log(e.text);
             handleSend(e.text, e.mosaicId1, e.mosaicId2);
           }}
         />
@@ -213,10 +214,6 @@ export function Start(props: StartProps): JSX.Element {
   );
 }
 
-function getEnumKeyByEnumValue(enumType: any, enumValue: any): string | undefined {
-  const keys = Object.keys(enumType).filter((key) => enumType[key] === enumValue);
-  return keys.length > 0 ? keys[0] : undefined;
-}
 
 interface ReportModalProps {
   onSubmit: (e: { text?: string; mosaicId1?: string;  mosaicId2?: string }) => void;
