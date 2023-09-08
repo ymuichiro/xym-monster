@@ -166,9 +166,61 @@ export default class TransactionService {
 
   static async announceTransaction(node: string, backendUrl: string, payload: string) {
     try {
-      const url = new URL(`${backendUrl}/api/transactions/announce?node=${node}&payload=${payload}`);
-      const res = await fetch(url.toString());
-      return res.json();
+      const _WebSocket = typeof window === 'undefined' ? WebSocket : window.WebSocket || WebSocket;
+      const wsNode = node.replace('https', 'wss') + '/ws';
+      const ws = new _WebSocket(wsNode);
+
+      const url = new URL(`${backendUrl}/api/transactions/getHash?payload=${payload}`);
+      const res = await fetch(url);
+      const { address, hash } = await res.json();
+
+      const data = {
+        payload,
+      };
+
+      const options = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      return await new Promise(function (resolve, reject) {
+        ws.onopen = () => {
+          fetch(`${node}/transactions`, options)
+          .catch(() => {
+            ws.close();
+            reject(new Error('Failed to announce transaction'));
+          });
+        };
+
+        ws.onclose = () => {};
+        ws.onmessage = (message: any) => {
+          const res = JSON.parse(message.data);
+          const statusFlag: string = `status/${address}`;
+          const confirmedFlag: string = `confirmedAdded/${address}`;
+          if ('uid' in res) {
+            const body1: { [key: string]: string } = { uid: res.uid, subscribe: statusFlag };
+            const body2: { [key: string]: string } = { uid: res.uid, subscribe: confirmedFlag };
+            ws.send(JSON.stringify(body1));
+            ws.send(JSON.stringify(body2));
+          } else {
+            if (res.topic === statusFlag) {
+              if (res.data.hash === hash) {
+                ws.close();
+                reject(new Error(res.data.code));
+              }
+            } else if (res.topic === confirmedFlag) {
+              if (res.data.meta.hash === hash) {
+                ws.close();
+                const successResponse = { payload, hash };
+                resolve(successResponse);
+              }
+            }
+          }
+        }
+      });
     } catch (e) {
       if (e instanceof Error) {
         throw e;

@@ -40,7 +40,7 @@ export function Monster(props: MonsterProps) {
         return;
       }
       // クエリにsigned payloadが存在する場合はトランザクション送信処理
-      TransactionService.announceTransaction(props.node, props.backendUrl, props.payload).then((result) => {
+      TransactionService.announceTransaction(props.node, props.backendUrl, props.payload).then((result: { payload: string, hash: string, error?: any }) => {
         if (result.error) {
           // 失敗したら sheet modal を表示
           console.error(result.error);
@@ -85,7 +85,7 @@ export function Monster(props: MonsterProps) {
   };
 
   const handleAnnounce = () => {
-    TransactionService.announceTransaction(props.node, props.backendUrl, payload).then((result) => {
+    TransactionService.announceTransaction(props.node, props.backendUrl, payload).then((result: { payload: string, hash: string, error?: any }) => {
       if (result.error) {
         // 失敗したら sheet modal を表示
         console.error(result.error);
