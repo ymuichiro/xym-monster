@@ -16,6 +16,20 @@ export class Monster {
       this.mosaicId = mosaicId;
       this.rarity = rarity;
   }
+  getMonsterRarityAsString(): string {
+      switch(this.rarity){
+          case MonsterRarity.Common:
+              return "Common";
+          case MonsterRarity.Uncommon:
+              return "Uncommon";
+          case MonsterRarity.Rare:
+              return "Rare";
+          case MonsterRarity.Epic:
+              return "Epic";
+          case MonsterRarity.Legendary:
+              return "Legendary";
+      }
+  }
 }
 
 // モンスターのリスト

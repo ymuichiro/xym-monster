@@ -6,6 +6,8 @@ import {
   TransactionRoutesApi,
 } from 'symbol-rest';
 
+import TreasureData from '../models/TreasureData'
+
 export default class TransactionService {
   static async getConfirmedTransaction(node: string, transactionId: string) {
     try {
@@ -164,19 +166,27 @@ export default class TransactionService {
     }
   }
 
-  static async announceTransaction(node: string, backendUrl: string, payload: string) {
+  static async announceTransaction(node: string, backendUrl: string, payload: string): Promise<{ payload: string, hash: string } | { error: any }> {
     try {
       const _WebSocket = typeof window === 'undefined' ? WebSocket : window.WebSocket || WebSocket;
       const wsNode = node.replace('https', 'wss') + '/ws';
       const ws = new _WebSocket(wsNode);
 
-      const url = new URL(`${backendUrl}/api/transactions/getHash?payload=${payload}`);
-      const res = await fetch(url);
-      const { address, hash } = await res.json();
-
       const data = {
         payload,
       };
+
+      const getHashOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      const url = new URL(`${backendUrl}/api/transactions/getHash`);
+      const res = await fetch(url, getHashOptions);
+      const { address, hash } = await res.json();
 
       const options = {
         method: 'PUT',
@@ -232,11 +242,22 @@ export default class TransactionService {
     }
   }
 
-  static async getTreasure(node: string, backendUrl: string, hash: string) {
+  static async getTreasure(node: string, backendUrl: string, hash: string): Promise<TreasureData> {
     try {
-      const url = new URL(`${backendUrl}/api/gacha/lottery?hash=${hash}&node=${node}`);
-      const res = await fetch(url.toString());
-      return res.json();
+      const data = {
+        hash,
+        node
+      }
+      const options = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+      const url = new URL(`${backendUrl}/api/gacha/lottery`);
+      const res = await fetch(url, options);
+      return (await res.json()).result;
     } catch (e) {
       if (e instanceof Error) {
         throw e;

@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next/types';
 import { TransactionService, MonsterRarity, Monster, MonsterService, CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters  } from 'symbol'
 import symbolSdk from 'symbol-sdk';
 
+
 // txの内容によって当選するモンスターを返す関数
 function chooseMonster(tx: any): Monster | undefined{
     const monsterService = new MonsterService(CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters);
@@ -80,10 +81,8 @@ function chooseMonster(tx: any): Monster | undefined{
         if(message == undefined){
             // 50%の確率でCommon1を返す
             if(monsterService.getRandomOutcome([0.5]) !== undefined) {
-                console.log("A")
                 return monsterService.chooseMonsterFromList(CommonMonsters);
             } else {
-                console.log("B")
                 return undefined;
             }
         // メッセージが空でない場合
@@ -96,7 +95,7 @@ function chooseMonster(tx: any): Monster | undefined{
 
 export default async function create(req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (req.method === 'GET') {
+        if (req.method === 'POST') {
             return await getHandle(req, res);
     }
         return res.status(405).end();
@@ -107,15 +106,15 @@ export default async function create(req: NextApiRequest, res: NextApiResponse) 
 }
 
 async function getHandle(req: NextApiRequest, res: NextApiResponse) {
-    let { hash, node } = req.query;
+    let { hash, node } = req.body;
     if(hash == undefined || Array.isArray(hash)) throw new Error('hash is undefined or string[]');
     if(node == undefined || Array.isArray(node)) throw new Error('node is undefined or string[]');
     const tx = await TransactionService.getConfirmedTransaction(node, hash)
     const result = await sendSelectedMosaic(tx, node);
-    res.status(200).json({ message: result});
+    res.status(200).json({result});
 }
 
-async function sendSelectedMosaic(tx: any, node: string): Promise<any>{
+async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, rarity?: string } | { error: string }>{
     if(tx.transaction.type != 16724) throw new Error('transaction type is not transfer transaction');
     let monster = undefined
     try  {
@@ -194,6 +193,5 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<any>{
     const transactionBuffer = transaction.serialize();
 	const hexPayload = symbolSdk.utils.uint8ToHex(transactionBuffer);
     
-    const result = await TransactionService.announceTransaction(node, process.env.NEXT_PUBLIC_BACKEND!, hexPayload);
-    return {result, "monsterName": monster?.name, "mosaicId": monster?.mosaicId, "rarity": monster?.rarity};
+    return { payload: hexPayload, "monsterName": monster?.name, "mosaicId": monster?.mosaicId, "rarity": monster?.getMonsterRarityAsString() };
 }

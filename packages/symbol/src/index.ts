@@ -16,3 +16,4 @@ export { default as OneTouchHarvestingTransaction } from './models/OneTouchHarve
 export { TransactionType } from './models/TransactionType';
 export { NetworkType } from './models/NetworkType';
 export { MonsterRarity, Monster, CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters } from './models/Monster';
+export { default as TreasureData } from './models/TreasureData';

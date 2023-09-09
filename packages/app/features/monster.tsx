@@ -4,11 +4,10 @@ import { ClipboardPaste, Copy } from '@tamagui/lucide-icons';
 import CrackerAnimation from 'app/assets/jsons/cracker-animation.json';
 import EggAnimation from 'app/assets/jsons/egg-2-animation.json';
 import LoadingAnimalAnimation from 'app/assets/jsons/loading-animal-animation.json';
-import { getEnumKeyByEnumValue } from 'app/services/common';
 import Lottie from 'lottie-react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
-import { MonsterRarity, TransactionService } from 'symbol';
+import { TransactionService } from 'symbol';
 
 interface MonsterProps {
   node: string;
@@ -59,43 +58,43 @@ export function Monster(props: MonsterProps) {
   const handleGetTreasure = async () => {
     setIsGettingMonster(true);
     setIsGetTreasureLoading(true);
-    const res = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
-    if (res.message.error) {
-      console.error(res.message.error);
+    const treasureData = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
+    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, treasureData.payload);
+    if ('error' in result) {
+      console.error(result.error);
       setErrorState('second');
-      setErrorMessage(res.message.error)
+      setErrorMessage(result.error)
       setAnimationState('fail');
       setIsGettingMonster(false);
       setIsGetTreasureLoading(false);
     } else {
-      console.log(res);
-      setResultMessage(`You got a "${res.message.monsterName}"! ${res.message.mosaicId}: ${getEnumKeyByEnumValue(MonsterRarity, res.message.rarity)}"`);
+      console.log(result);
+      setResultMessage(`You got a "${treasureData.monsterName}"! ${treasureData.mosaicId}: ${treasureData.rarity}"`);
       setAnimationState('get');
       setIsGettingMonster(false);
       setIsGetTreasureLoading(false);
     }
   };
 
-  const handleAnnounce = () => {
-    announce(payload);
+  const handleAnnounce = async () => {
+    await announce(payload);
   }
 
-  const announce = (_payload: string) => {
-    TransactionService.announceTransaction(props.node, props.backendUrl, _payload).then((result: { payload: string, hash: string, error?: any }) => {
-      if (result.error) {
-        // 失敗したら ErrorMessage を表示
-        setAnimationState('fail');
-        setErrorMessage(result.error)
-        setErrorState('first');
-        console.error(result.error);
-      } else {
-        // 成功したら Hashをセットし検証用ボタン（Get）を表示
-        setHash(result.hash);
-        setAnimationState('present');
-      }
-    });
+  const announce = async (_payload: string) => {
     setHash('*'.repeat(64));
     setAnimationState('wait');
+    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, _payload);
+    if ('error' in result) {
+      // 失敗したら ErrorMessage を表示
+      setAnimationState('fail');
+      setErrorMessage(result.error)
+      setErrorState('first');
+      console.error(result.error);
+    } else {
+      // 成功したら Hashをセットし検証用ボタン（Get）を表示
+      setHash(result.hash);
+      setAnimationState('present');
+    };
   }
 
   if (animationState === 'wait') {

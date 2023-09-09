@@ -3,7 +3,7 @@ import symbolSdk from 'symbol-sdk';
 
 export default async function create(req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (req.method === 'GET') {
+        if (req.method === 'POST') {
             return await getHandle(req, res);
     }
         return res.status(405).end();
@@ -14,7 +14,7 @@ export default async function create(req: NextApiRequest, res: NextApiResponse) 
 }
 async function getHandle(req: NextApiRequest, res: NextApiResponse) {
   try {
-    let { payload } = req.query;
+    let { payload } = req.body;
     const tranasction = symbolSdk.symbol.TransactionFactory.deserialize(symbolSdk.utils.hexToUint8(payload));
     const facade = new symbolSdk.facade.SymbolFacade(tranasction.network.value == "104" ? "mainnet" : "testnet");
     const address = facade.network.publicKeyToAddress(tranasction.signerPublicKey).toString();
