@@ -6,7 +6,7 @@ import {
   TransactionRoutesApi,
 } from 'symbol-rest';
 
-import TreasureData from '../models/TreasureData'
+import TreasureData from '../models/TreasureData';
 
 export default class TransactionService {
   static async getConfirmedTransaction(node: string, transactionId: string) {
@@ -166,40 +166,33 @@ export default class TransactionService {
     }
   }
 
-  static async announceTransaction(node: string, backendUrl: string, payload: string): Promise<{ payload: string, hash: string } | { error: any }> {
-    try {
-      const _WebSocket = typeof window === 'undefined' ? WebSocket : window.WebSocket || WebSocket;
-      const wsNode = node.replace('https', 'wss') + '/ws';
-      const ws = new _WebSocket(wsNode);
-
-      const data = {
-        payload,
-      };
-
-      const getHashOptions = {
+  static async announceTransaction(
+    node: string,
+    backendUrl: string,
+    payload: string
+  ): Promise<{ payload: string; hash: string } | { error: any }> {
+    const { address, hash } = await new Promise<{ address: string; hash: string }>((resolve) => {
+      fetch(`${backendUrl}/api/transactions/getHash`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      };
-
-      const url = new URL(`${backendUrl}/api/transactions/getHash`);
-      const res = await fetch(url, getHashOptions);
-      const { address, hash } = await res.json();
-
-      const options = {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      };
-
-      return await new Promise(function (resolve, reject) {
-        ws.onopen = () => {
-          fetch(`${node}/transactions`, options)
-          .catch(() => {
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ payload }),
+      })
+        .then((r) => r.json())
+        .then((r) => {
+          resolve({ address: r.address, hash: r.hash });
+        });
+    });
+    const _WebSocket = typeof window === 'undefined' ? WebSocket : window.WebSocket || WebSocket;
+    const wsNode = node.replace('https', 'wss') + '/ws';
+    const ws = new _WebSocket(wsNode);
+    try {
+      return await new Promise(function (resolve) {
+        ws.onopen = async () => {
+          fetch(`${node}/transactions`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ payload }),
+          }).catch(() => {
             ws.close();
             const errorResponse = { error: 'Failed to announce transaction' };
             resolve(errorResponse);
@@ -207,33 +200,35 @@ export default class TransactionService {
         };
 
         ws.onclose = () => {};
+
         ws.onmessage = (message: any) => {
-          const res = JSON.parse(message.data);
+          const _res = JSON.parse(message.data);
           const statusFlag: string = `status/${address}`;
           const confirmedFlag: string = `confirmedAdded/${address}`;
-          if ('uid' in res) {
-            const body1: { [key: string]: string } = { uid: res.uid, subscribe: statusFlag };
-            const body2: { [key: string]: string } = { uid: res.uid, subscribe: confirmedFlag };
+          if ('uid' in _res) {
+            const body1: { [key: string]: string } = { uid: _res.uid, subscribe: statusFlag };
+            const body2: { [key: string]: string } = { uid: _res.uid, subscribe: confirmedFlag };
             ws.send(JSON.stringify(body1));
             ws.send(JSON.stringify(body2));
           } else {
-            if (res.topic === statusFlag) {
-              if (res.data.hash === hash) {
+            if (_res.topic === statusFlag) {
+              if (_res.data.hash === hash) {
                 ws.close();
-                const errorResponse = { error: res.data.code };
+                const errorResponse = { error: _res.data.code };
                 resolve(errorResponse);
               }
-            } else if (res.topic === confirmedFlag) {
-              if (res.data.meta.hash === hash) {
+            } else if (_res.topic === confirmedFlag) {
+              if (_res.data.meta.hash === hash) {
                 ws.close();
                 const successResponse = { payload, hash };
                 resolve(successResponse);
               }
             }
           }
-        }
+        };
       });
     } catch (e) {
+      ws.close();
       if (e instanceof Error) {
         throw e;
       } else {
@@ -246,8 +241,8 @@ export default class TransactionService {
     try {
       const data = {
         hash,
-        node
-      }
+        node,
+      };
       const options = {
         method: 'POST',
         headers: {
