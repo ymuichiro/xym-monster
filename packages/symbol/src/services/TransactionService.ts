@@ -191,7 +191,8 @@ export default class TransactionService {
           fetch(`${node}/transactions`, options)
           .catch(() => {
             ws.close();
-            reject(new Error('Failed to announce transaction'));
+            const errorResponse = { error: 'Failed to announce transaction' };
+            resolve(errorResponse);
           });
         };
 
@@ -209,7 +210,8 @@ export default class TransactionService {
             if (res.topic === statusFlag) {
               if (res.data.hash === hash) {
                 ws.close();
-                reject(new Error(res.data.code));
+                const errorResponse = { error: res.data.code };
+                resolve(errorResponse);
               }
             } else if (res.topic === confirmedFlag) {
               if (res.data.meta.hash === hash) {

@@ -24,6 +24,7 @@ export function Monster(props: MonsterProps) {
   const [resultMessage, setResultMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [animationState, setAnimationState] = useState<'wait' | 'present' | 'get' | 'fail' | 'announce'>('get');
+  const [errorState, setErrorState] = useState<'first' | 'second'>();
   const [isGetTreasureLoading, setIsGetTreasureLoading] = useState<boolean>(false);
 
   const router = useRouter();
@@ -41,18 +42,7 @@ export function Monster(props: MonsterProps) {
         return;
       }
       // クエリにsigned payloadが存在する場合はトランザクション送信処理
-      TransactionService.announceTransaction(props.node, props.backendUrl, props.payload).then((result: { payload: string, hash: string, error?: any }) => {
-        if (result.error) {
-          // 失敗したら sheet modal を表示
-          console.error(result.error);
-        } else {
-          // 成功したら Hashをセットし検証用ボタン（Get）を表示
-          setHash(result.hash);
-          setAnimationState('present');
-        }
-      });
-      setHash('*'.repeat(64));
-      setAnimationState('wait');
+      announce(props.payload);
     } catch (err) {
       console.error(err);
     }
@@ -72,6 +62,7 @@ export function Monster(props: MonsterProps) {
     const res = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
     if (res.message.error) {
       console.error(res.message.error);
+      setErrorState('second');
       setErrorMessage(res.message.error)
       setAnimationState('fail');
       setIsGettingMonster(false);
@@ -86,9 +77,16 @@ export function Monster(props: MonsterProps) {
   };
 
   const handleAnnounce = () => {
-    TransactionService.announceTransaction(props.node, props.backendUrl, payload).then((result: { payload: string, hash: string, error?: any }) => {
+    announce(payload);
+  }
+
+  const announce = (_payload: string) => {
+    TransactionService.announceTransaction(props.node, props.backendUrl, _payload).then((result: { payload: string, hash: string, error?: any }) => {
       if (result.error) {
-        // 失敗したら sheet modal を表示
+        // 失敗したら ErrorMessage を表示
+        setAnimationState('fail');
+        setErrorMessage(result.error)
+        setErrorState('first');
         console.error(result.error);
       } else {
         // 成功したら Hashをセットし検証用ボタン（Get）を表示
@@ -195,9 +193,20 @@ export function Monster(props: MonsterProps) {
         </View>
         <YStack space={'$4'} width={'100%'} maxWidth={600}>
         {<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}
+        {
+          errorState === 'first' && 
+          <Button onPress={()=>{
+            router.push({
+              pathname: '/',
+            });
+          }}>START</Button>
+        }
+        {
+          errorState === 'second' && 
           <Button themeInverse onPress={handleGetTreasure}>
             Retry...
           </Button>
+        }
         </YStack>
         <View height={150} />
       </YStack>
