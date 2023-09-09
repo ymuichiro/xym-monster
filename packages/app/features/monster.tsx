@@ -86,7 +86,9 @@ export function Monster(props: MonsterProps) {
   const announce = async (_payload: string) => {
     setHash('*'.repeat(64));
     setAnimationState('wait');
+    console.log("payload", _payload);
     const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, _payload);
+    console.log("result", result);
     if ('error' in result) {
       // 失敗したら ErrorMessage を表示
       setAnimationState('fail');
