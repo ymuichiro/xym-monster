@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next/types';
 import { TransactionService, MonsterRarity, Monster, MonsterService, CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters  } from 'symbol'
 import symbolSdk from 'symbol-sdk';
 
-
 // txの内容によって当選するモンスターを返す関数
 function chooseMonster(tx: any): Monster | undefined{
     const monsterService = new MonsterService(CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters);
@@ -10,11 +9,16 @@ function chooseMonster(tx: any): Monster | undefined{
     let mosaicId1: string | undefined = undefined;
     let mosaicId2: string | undefined = undefined;
     if(tx && tx.transaction && tx.transaction.mosaics) {
-        if(tx.transaction.mosaics[0] && tx.transaction.mosaics[0].id) {
-            mosaicId1 = tx.transaction.mosaics[0].id;
-        }
-        if(tx.transaction.mosaics[1] && tx.transaction.mosaics[1].id) {
-            mosaicId2 = tx.transaction.mosaics[1].id;
+        if(tx.transaction.mosaics[0] && tx.transaction.mosaics[0].id){
+            if(tx.transaction.mosaics[0].amount == 2) {
+                mosaicId1 = tx.transaction.mosaics[0].id;
+                mosaicId2 = tx.transaction.mosaics[0].id;
+            } else {
+                mosaicId1 = tx.transaction.mosaics[0].id;
+            }
+            if(tx.transaction.mosaics[1] && tx.transaction.mosaics[1].id) {
+                mosaicId2 = tx.transaction.mosaics[1].id;
+            }
         }
     }
     let rarity1: MonsterRarity | undefined = undefined;
