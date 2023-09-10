@@ -32,6 +32,7 @@ import {
   UncommonMonsters,
   isMobileDevice
 } from 'symbol';
+import Cookies from 'js-cookie';
 
 import AlertDialogMonster from '../components/AlertDialog';
 
@@ -69,6 +70,11 @@ export function Start(props: StartProps): JSX.Element {
         } else {
           setIsSSSInstaled(false);
         }
+      } else {
+        const _pubKey = Cookies.get('publicKey')
+        if(_pubKey != undefined) {
+          setPublicKey(_pubKey);
+        }
       }
     };
     // SSSは起動時に初期化されるので、1秒待ってから公開鍵を取得する
@@ -84,6 +90,11 @@ export function Start(props: StartProps): JSX.Element {
       setIsOpenAlertDialog("Please input you public key.");
       return;
     }
+
+    // モバイルの場合は公開鍵をCookieに保存する
+    if(isMobileDevice()) {
+      Cookies.set('publicKey', publicKey);
+    }
     
     // モンスターのセレクトボックスの初期化
     setItems([{ name: 'none', value: 'none' }]);
@@ -95,7 +106,7 @@ export function Start(props: StartProps): JSX.Element {
       accountInfo.account.mosaics.forEach((mosaic) => {
         const monster = monsterService.getMonsterName(mosaic.id);
         if(monster != undefined) {
-          setItems((prev) => [...prev, { name: monster.name + " : " + getEnumKeyByEnumValue(MonsterRarity, monster.rarity), value: mosaic.id }]);
+          setItems((prev) => [...prev, { name: monster.name + " : " + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + " : " + mosaic.amount, value: mosaic.id }]);
         }
       })
     }).catch(()=>{
@@ -126,6 +137,7 @@ export function Start(props: StartProps): JSX.Element {
       address!,
       undefined,
       undefined,
+      publicKey,
       mosaics,
       message,
       false,
@@ -265,20 +277,6 @@ function ReportModal(props: ReportModalProps): JSX.Element {
         <View>
           <Label>Token</Label>
           <YStack space={'$3'} f={1}>
-          {/* <select value={mosaicId1} onChange={(e) => setMosaicId1(e.target.value)}>
-            {props.items.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.name}
-              </option>
-            ))}
-          </select>
-          <select value={mosaicId2} onChange={(e) => setMosaicId2(e.target.value)}>
-            {props.items.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.name}
-              </option>
-            ))}
-          </select> */}
             <SelectBase items={props.items} select={{ id: 'xymMon', value: mosaicId1, onValueChange: setMosaicId1 }}/>
             <SelectBase items={props.items} select={{ id: 'xymMon', value: mosaicId2, onValueChange: setMosaicId2 }} />
           </YStack>

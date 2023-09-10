@@ -12,7 +12,9 @@
   "dependencies": {
     "@my/ui": "0.0.1",
     "@tamagui/next-theme": "latest",
+    "@types/js-cookie": "^3.0.3",
     "app": "0.0.0",
+    "js-cookie": "^3.0.5",
     "next": "13.4.4",
     "raf": "^3.4.1",
     "react": "^18.2.0",

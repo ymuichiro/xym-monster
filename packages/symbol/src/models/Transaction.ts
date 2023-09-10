@@ -8,6 +8,7 @@ export default class Transaction {
     public networkType?: NetworkType, 
     public deadline?: BigInt, 
     public feeMultiplier?: number,
+    public signerPublicKey?: string,
     public payload: string = ''){}
 
   async build(){};
@@ -16,7 +17,12 @@ export default class Transaction {
     if(this.payload == '') await this.build();
 
     if(isMobileDevice()) {
-      window.location.href = `alice://sign?type=request_sign_transaction&data=${this.payload}`;
+      let urlStr = `alice://sign?type=request_sign_transaction&data=${this.payload}`;
+      if(this.signerPublicKey !== undefined) {
+        urlStr += `&set_public_key=${this.signerPublicKey}}`;
+      }
+      const url = new URL(urlStr);
+      window.location.href = url.toString();
       return 'aLice';
     } else {
       setTransactionByPayload(this.payload);

@@ -14,12 +14,13 @@ export default class TransferTransaction extends Transaction{
       public readonly networkType: NetworkType, 
       public readonly recipientAddress: string, 
       public readonly deadline?: BigInt, 
-      public readonly feeMultiplier?: number, 
+      public readonly feeMultiplier?: number,
+      public readonly signerPublicKey?: string,
       public readonly mosaics?: Mosaic[], 
       public message?: string,
       public readonly isEncrypt?: boolean,
       ){
-      super(node, networkType, deadline, feeMultiplier)
+      super(node, networkType, deadline, feeMultiplier, signerPublicKey)
   }
 
   public override async build(){
