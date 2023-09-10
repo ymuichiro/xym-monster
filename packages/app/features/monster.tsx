@@ -58,11 +58,8 @@ export function Monster(props: MonsterProps) {
   const handleGetTreasure = async () => {
     setIsGettingMonster(true);
     setIsGetTreasureLoading(true);
-    console.log("hash", hash);
     const treasureData = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
-    console.log("treasureData", treasureData);
     const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, treasureData.payload);
-    console.log("result", result);
     if ('error' in result) {
       console.error(result.error);
       setErrorState('second');
@@ -86,9 +83,7 @@ export function Monster(props: MonsterProps) {
   const announce = async (_payload: string) => {
     setHash('*'.repeat(64));
     setAnimationState('wait');
-    console.log("payload", _payload);
     const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, _payload);
-    console.log("result", result);
     if ('error' in result) {
       // 失敗したら ErrorMessage を表示
       setAnimationState('fail');

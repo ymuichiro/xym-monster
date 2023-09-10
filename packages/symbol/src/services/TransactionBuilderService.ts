@@ -5,15 +5,28 @@ import MosaicTransaction from '../models/MosaicTransaction';
 
 export default class TransactionBuilderService {
   static async buildTransferTransaction(transferTransaction: TransferTransaction): Promise<string> {
-      try{
-          const queryString = buildQueryString(transferTransaction);
-          const url = new URL(`${transferTransaction.backendUrl}/api/transactions/transfer?${queryString}`);
-          console.log(url.toString());
-          const result = await getDataFromApi(url.toString());
-          return result.payload;
-      } catch(e: any) {
-          throw new Error(e.message);
-      }
+    try{
+      return await new Promise(function (resolve, reject) {
+        (BigInt.prototype as any).toJSON = function() { return this.toString(); }
+        const url = new URL(`${transferTransaction.backendUrl}/api/transactions/transfer`);
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(transferTransaction),
+        }).then(async (res) => {
+          if (res.status !== 200) {
+            reject(new Error('failed to fetch'));
+          }
+          resolve((await res.json()).payload);
+        }).catch((err) => {
+          reject(err);
+        });
+      });
+    } catch(e: any) {
+        throw new Error(e.message);
+    }
   }
 
   static async buildMosaicTransaction(mosaicTransaction: MosaicTransaction): Promise<string> {

@@ -74,7 +74,7 @@ export function convertToMosaicArray(objArray: any[]): Mosaic[] {
   for (const obj of objArray) {
     const mosaic: Mosaic = {
       id: obj.id,
-      amount: BigInt(obj.amount),
+      amount: obj.amount,
     };
     mosaicArray.push(mosaic);
   }

@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
 import { charMapping } from 'symbol'
 import symbolSdk from 'symbol-sdk';
+import { TransferTransaction, NetworkType } from 'symbol';
 
 export default async function create(req: NextApiRequest, res: NextApiResponse) {
     try {
-        if (req.method === 'GET') {
+        if (req.method === 'POST') {
             return await getHandle(req, res);
     }
         return res.status(405).end();
@@ -14,36 +15,27 @@ export default async function create(req: NextApiRequest, res: NextApiResponse) 
     }
 }
 async function getHandle(req: NextApiRequest, res: NextApiResponse) {
-    let { recipientAddress, 'mosaics[id]': mosaicIds, 'mosaics[amount]': mosaicAmounts, feeMultiplier, message, networkType, deadline, isEncrypt } = req.query;
-    const _feeMultiplier = feeMultiplier == undefined ? 100 : Number(feeMultiplier);
-    const facade = new symbolSdk.facade.SymbolFacade(networkType == "0" ? "mainnet" : "testnet");
-    deadline = deadline == undefined ? new symbolSdk.symbol.NetworkTimestamp(facade.network.fromDatetime(Date.now())).addHours(2).timestamp
-        : new symbolSdk.symbol.NetworkTimestamp(deadline).timestamp;
-    let mosaics = [];
-    if(mosaicIds !== undefined) {
-        if(Array.isArray(mosaicIds)) {
-            for (let i = 0; i < mosaicIds.length; i++) {
-                const mosaicId = convertToHexFromNameSpace(mosaicIds[i]);
-                const amount = mosaicAmounts![i];
-                mosaics.push({ 
-                    mosaicId: BigInt("0x" + mosaicId), 
-                    amount: BigInt(amount) }
-                );
-            }
-        } else {
-            mosaicIds = convertToHexFromNameSpace(mosaicIds)
+    const transferTransaction = req.body;
+    const _feeMultiplier = transferTransaction.feeMultiplier == undefined ? 100 : Number(transferTransaction.feeMultiplier);
+    const facade = new symbolSdk.facade.SymbolFacade(transferTransaction.networkType == NetworkType.MAINNET ? "mainnet" : "testnet");
+    const deadline = transferTransaction.deadline == undefined ? new symbolSdk.symbol.NetworkTimestamp(facade.network.fromDatetime(Date.now())).addHours(2).timestamp
+        : new symbolSdk.symbol.NetworkTimestamp(transferTransaction.deadline).timestamp;
+    let mosaics: { mosaicId:BigInt, amount:BigInt }[] = [];
+    if(transferTransaction.mosaics !== undefined) {
+        transferTransaction.mosaics.forEach((mosaic: { amount: string; id: string; }) => {
             mosaics.push({ 
-                mosaicId: BigInt("0x" + mosaicIds), 
-                amount: BigInt(Number(mosaicAmounts))}
-            );
-        }
+                mosaicId: BigInt("0x" + convertToHexFromNameSpace(mosaic.id)),
+                amount: BigInt(mosaic.amount)
+            });
+        }); 
     }
+
     let messageArray: number[] = [];
-    if(typeof message === 'string'){
-        if(isEncrypt == "true") {
-            messageArray = [1,...(new TextEncoder()).encode(message)];
+    if(transferTransaction.message != undefined){
+        if(transferTransaction.isEncrypt != undefined && transferTransaction.isEncrypt == true) {
+            messageArray = [1,...(new TextEncoder()).encode(transferTransaction.message)];
         } else {
-            messageArray = [0,...(new TextEncoder()).encode(message)];
+            messageArray = [0,...(new TextEncoder()).encode(transferTransaction.message)];
         }
     }
 
@@ -51,7 +43,7 @@ async function getHandle(req: NextApiRequest, res: NextApiResponse) {
         type: 'transfer_transaction_v1',
         deadline,
         message: messageArray,
-        recipientAddress,
+        recipientAddress: transferTransaction.recipientAddress,
         mosaics
     });
     transaction.fee = new symbolSdk.symbol.Amount(BigInt(transaction.size * _feeMultiplier));
