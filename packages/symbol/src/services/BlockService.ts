@@ -1,4 +1,4 @@
-import { Configuration, BlockInfoDTO, BlockRoutesApi, TransactionRoutesApi } from 'symbol-rest';
+import { Configuration, BlockInfoDTO, BlockRoutesApi } from 'symbol-rest';
 import TransactionService from './TransactionService';
 
 export default class BlockService {

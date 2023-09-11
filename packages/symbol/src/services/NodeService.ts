@@ -1,6 +1,6 @@
 import { Configuration, NodeInfoDTO, NodeRoutesApi } from 'symbol-rest';
 
-export default class AccountService {
+export default class NodeService {
   static async getNodeInfo(node: string): Promise<NodeInfoDTO> {
     const config = new Configuration({
       basePath: node,
