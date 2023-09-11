@@ -12,10 +12,7 @@ export default function GachaStartPage() {
       <Head>
         <title>XYM Monster</title>
       </Head>
-      <KapselToyStartScreen 
-        node={process.env.NEXT_PUBLIC_SYMBOL_NODE as string} 
-        backendUrl={process.env.NEXT_PUBLIC_BACKEND as string} 
-        publicSystemAddress={process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string}/>
+      <KapselToyStartScreen/>
     </>
   );
 }

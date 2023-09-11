@@ -13,7 +13,8 @@ import {
   YStack,
 } from '@my/ui';
 import EggAnimation from 'app/assets/jsons/egg-animation.json';
-import { getEnumKeyByEnumValue } from 'app/services/common';
+import { getActiveNode, getEnumKeyByEnumValue } from 'app/services/common';
+import Cookies from 'js-cookie';
 import Lottie from 'lottie-react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
@@ -32,15 +33,9 @@ import {
   UncommonMonsters,
   isMobileDevice
 } from 'symbol';
-import Cookies from 'js-cookie';
 
 import AlertDialogMonster from '../components/AlertDialog';
 
-interface StartProps {
-  node: string;
-  backendUrl: string;
-  publicSystemAddress: string;
-}
 
 interface MosaicSelectProps {
   name: string;
@@ -50,14 +45,14 @@ interface MosaicSelectProps {
 /**
  * ガチャアプリの起動、メッセージ入力の画面
  */
-export function Start(props: StartProps): JSX.Element {
+export function Start(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSSSInstaled, setIsSSSInstaled] = useState<boolean>(true);
   const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>("");
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none' }]);
   const router = useRouter();
-  const address = props.publicSystemAddress;
+  const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
 
   useEffect(() => {
     const doAsyncTask = async () => {
@@ -102,7 +97,8 @@ export function Start(props: StartProps): JSX.Element {
     // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
     const accountService = new AccountService(publicKey);
     const monsterService = new MonsterService(CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters);
-    accountService.getAccountInfo(props.node).then((accountInfo) => {
+    const node = await getActiveNode();
+    accountService.getAccountInfo(node).then((accountInfo) => {
       accountInfo.account.mosaics.forEach((mosaic) => {
         const monster = monsterService.getMonsterName(mosaic.id);
         if(monster != undefined) {
@@ -130,9 +126,10 @@ export function Start(props: StartProps): JSX.Element {
       }
     }
 
+    const node = await getActiveNode();
     const transferTransaction = new TransferTransaction(
-      props.node,
-      props.backendUrl,
+      node,
+      process.env.NEXT_PUBLIC_BACKEND as string,
       NetworkType.TESTNET,
       address!,
       undefined,
@@ -170,7 +167,7 @@ export function Start(props: StartProps): JSX.Element {
         hasAccept={true} 
         hasCancel={false} 
         title='Alert' 
-        description='SSS is not instaled. Please install SSS.' 
+        description='SSS is not installed. Please install SSS.' 
         acceptText='OK'
         onAccept={()=>setIsSSSInstaled(true)}/>
       <AlertDialogMonster 

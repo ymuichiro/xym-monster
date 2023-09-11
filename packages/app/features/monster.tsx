@@ -4,15 +4,13 @@ import { ClipboardPaste, Copy } from '@tamagui/lucide-icons';
 import CrackerAnimation from 'app/assets/jsons/cracker-animation.json';
 import EggAnimation from 'app/assets/jsons/egg-2-animation.json';
 import LoadingAnimalAnimation from 'app/assets/jsons/loading-animal-animation.json';
+import { getActiveNode } from 'app/services/common';
 import Lottie from 'lottie-react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
 import { TransactionService } from 'symbol';
 
 interface MonsterProps {
-  node: string;
-  backendUrl: string;
-  publicSystemAddress: string;
   payload: string;
 }
 
@@ -58,8 +56,9 @@ export function Monster(props: MonsterProps) {
   const handleGetTreasure = async () => {
     setIsGettingMonster(true);
     setIsGetTreasureLoading(true);
-    const treasureData = await TransactionService.getTreasure(props.node, props.backendUrl, hash);
-    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, treasureData.payload);
+    const node = await getActiveNode();
+    const treasureData = await TransactionService.getTreasure(node, (process.env.NEXT_PUBLIC_BACKEND as string), hash);
+    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(node, (process.env.NEXT_PUBLIC_BACKEND as string), treasureData.payload);
     if ('error' in result) {
       console.error(result.error);
       setErrorState('second');
@@ -83,7 +82,8 @@ export function Monster(props: MonsterProps) {
   const announce = async (_payload: string) => {
     setHash('*'.repeat(64));
     setAnimationState('wait');
-    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(props.node, props.backendUrl, _payload);
+    const node = await getActiveNode();
+    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(node, (process.env.NEXT_PUBLIC_BACKEND as string), _payload);
     if ('error' in result) {
       // 失敗したら ErrorMessage を表示
       setAnimationState('fail');
