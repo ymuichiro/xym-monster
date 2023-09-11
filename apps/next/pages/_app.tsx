@@ -17,8 +17,12 @@ function MyApp({ Component, pageProps }: SolitoAppProps) {
   return (
     <>
       <Head>
-        <title>Tamagui Example App</title>
-        <meta name="description" content="Tamagui, Solito, Expo & Next.js" />
+      <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:site' content='@essan_enjoneer' />
+        <meta name='twitter:image' content={`${process.env.NEXT_PUBLIC_BACKEND || ''}/twitter-card.png`} />
+        <title>XYM Monster</title>
+        <meta name="description" content="フルオンチェーン NFT カプセルトイの楽しさを体験しよう！" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <ThemeProvider>
