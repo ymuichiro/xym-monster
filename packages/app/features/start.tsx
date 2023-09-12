@@ -31,11 +31,10 @@ import {
   RareMonsters,
   TransferTransaction,
   UncommonMonsters,
-  isMobileDevice
+  isMobileDevice,
 } from 'symbol';
 
 import AlertDialogMonster from '../components/AlertDialog';
-
 
 interface MosaicSelectProps {
   name: string;
@@ -48,7 +47,7 @@ interface MosaicSelectProps {
 export function Start(): JSX.Element {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isSSSInstaled, setIsSSSInstaled] = useState<boolean>(true);
-  const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>("");
+  const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>('');
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none' }]);
   const router = useRouter();
@@ -58,70 +57,90 @@ export function Start(): JSX.Element {
     const doAsyncTask = async () => {
       // モバイルでなければSSSから公開鍵を取得する
 
-      if(!isMobileDevice()) {
-        if (isAllowedSSS()){
+      if (!isMobileDevice()) {
+        if (isAllowedSSS()) {
           const pubKey = getActivePublicKey();
           setPublicKey(pubKey);
         } else {
           setIsSSSInstaled(false);
         }
       } else {
-        const _pubKey = Cookies.get('publicKey')
-        if(_pubKey != undefined) {
+        const _pubKey = Cookies.get('publicKey');
+        if (_pubKey != undefined) {
           setPublicKey(_pubKey);
         }
       }
     };
     // SSSは起動時に初期化されるので、1秒待ってから公開鍵を取得する
-    setTimeout(()=>{
-      doAsyncTask()
+    setTimeout(() => {
+      doAsyncTask();
     }, 1000);
   }, []);
 
   // ゲームスタートボタン押下時の処理
   const hundleGameStart = async () => {
-    if(publicKey == "") {
+    if (publicKey == '') {
       // 公開鍵が取得できなかった場合はアラートを表示する
-      setIsOpenAlertDialog("Please input you public key.");
+      setIsOpenAlertDialog('Please input you public key.');
       return;
     }
 
     // モバイルの場合は公開鍵をCookieに保存する
-    if(isMobileDevice()) {
+    if (isMobileDevice()) {
       Cookies.set('publicKey', publicKey);
     }
-    
+
     // モンスターのセレクトボックスの初期化
     setItems([{ name: 'none', value: 'none' }]);
-    
+
     // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
     const accountService = new AccountService(publicKey);
-    const monsterService = new MonsterService(CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters);
+    const monsterService = new MonsterService(
+      CommonMonsters,
+      UncommonMonsters,
+      RareMonsters,
+      EpicMonsters,
+      LegendaryMonsters
+    );
     const node = await getActiveNode();
-    accountService.getAccountInfo(node).then((accountInfo) => {
-      accountInfo.account.mosaics.forEach((mosaic) => {
-        const monster = monsterService.getMonsterName(mosaic.id);
-        if(monster != undefined) {
-          setItems((prev) => [...prev, { name: monster.name + " : " + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + " : " + mosaic.amount, value: mosaic.id }]);
-        }
+    accountService
+      .getAccountInfo(node)
+      .then((accountInfo) => {
+        accountInfo.account.mosaics.forEach((mosaic) => {
+          const monster = monsterService.getMonsterName(mosaic.id);
+          if (monster != undefined) {
+            setItems((prev) => [
+              ...prev,
+              {
+                name:
+                  monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
+                value: mosaic.id,
+              },
+            ]);
+          }
+        });
       })
-    }).catch(()=>{
-      setIsOpenAlertDialog("Unable to your account information.")
-    })
+      .catch(() => {
+        setIsOpenAlertDialog('Unable to your account information.');
+      });
     setIsOpen(!isOpen);
   };
 
   // セットした情報によりトランザクションを構築する
-  const handleSend = async (message: string | undefined, mosaicId1: string | undefined, mosaicId2: string | undefined) => {
+  const handleSend = async (
+    message: string | undefined,
+    mosaicId1: string | undefined,
+    mosaicId2: string | undefined
+  ) => {
     let mosaics: Mosaic[] = [];
 
-    if(mosaicId1 && mosaicId2 && mosaicId1 == mosaicId2) {
-      mosaics.push({ id: mosaicId1, amount: BigInt(2)});
+    if (mosaicId1 && mosaicId2 && mosaicId1 == mosaicId2) {
+      mosaics.push({ id: mosaicId1, amount: BigInt(2) });
     } else {
-      if(mosaicId1){
-        mosaics.push({ id: mosaicId1, amount: BigInt(1)});
+      if (mosaicId1) {
+        mosaics.push({ id: mosaicId1, amount: BigInt(1) });
       }
-      if(mosaicId2){
+      if (mosaicId2) {
         mosaics.push({ id: mosaicId2, amount: BigInt(1) });
       }
     }
@@ -137,7 +156,7 @@ export function Start(): JSX.Element {
       publicKey,
       mosaics,
       message,
-      false,
+      false
     );
 
     try {
@@ -161,75 +180,80 @@ export function Start(): JSX.Element {
   };
 
   return (
-    <YStack f={1} padding={"$4"}>
-      <AlertDialogMonster 
-        isOpen={!isSSSInstaled} 
-        hasAccept={true} 
-        hasCancel={false} 
-        title='Alert' 
-        description='SSS is not installed. Please install SSS.' 
-        acceptText='OK'
-        onAccept={()=>setIsSSSInstaled(true)}/>
-      <AlertDialogMonster 
-        isOpen={isOpenAlertDialog !== ""} 
-        hasAccept={true} 
-        hasCancel={false} 
-        title='Alert' 
-        description={isOpenAlertDialog} 
-        acceptText='OK'
-        onAccept={()=>setIsOpenAlertDialog("")}/>
-      <H2
-        style={{
-          color: '#ACB6E5',
-          background: '-webkit-linear-gradient(0deg, #ACB6E5, #86FDE8)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          paddingRight: 20,
-          letterSpacing: 1.1,
-        }}
-      >
-        XYM Monster 😈
-      </H2>
-      <Paragraph>What you get depends on your luck!</Paragraph>
-      <Paragraph theme="alt1" size="$3" marginTop="$3">
-        XYM Monster is a game where you can get a random XYM Monster by inscribing today's events on the blockchain.
-      </Paragraph>
-      <Lottie source={EggAnimation} autoPlay loop style={{ height: 400 }} />
-      <YStack rowGap={"$4"}>
-        <XStack jc="center">
-          <Paragraph>Input your publicKey.</Paragraph>
-        </XStack>
-        <XStack jc="center" space={'$3'}>
-          <Input placeholder="PublicKey" value={publicKey} width={'80%'} onChange={handlePublicKeyChange}/>
-          {isMobileDevice() && <Button onPress={()=>{window.location.href = "alice://sign?type=request_pubkey";}}>aLice</Button>}
-        </XStack>
-        <XStack jc="center">
-          <Button
-            themeShallow
-            fontWeight="bold"
-            paddingLeft={'$8'}
-            paddingRight={'$8'}
-            onPress={hundleGameStart}
-          >
-            GAME START !!
-          </Button>
-        </XStack>
-      </YStack>
-      <SheetBase isOpen={isOpen} onOpenChange={setIsOpen}>
-        <ReportModal
-          items={ITEMS}
-          onSubmit={(e) => {
-            handleSend(e.text, e.mosaicId1, e.mosaicId2);
-          }}
+    <YStack f={1} padding={'$4'} alignItems="center">
+      <YStack f={1} maxWidth={600}>
+        <AlertDialogMonster
+          isOpen={!isSSSInstaled}
+          hasAccept={true}
+          hasCancel={false}
+          title="Alert"
+          description="SSS is not installed. Please install SSS."
+          acceptText="OK"
+          onAccept={() => setIsSSSInstaled(true)}
         />
-      </SheetBase>
+        <AlertDialogMonster
+          isOpen={isOpenAlertDialog !== ''}
+          hasAccept={true}
+          hasCancel={false}
+          title="Alert"
+          description={isOpenAlertDialog}
+          acceptText="OK"
+          onAccept={() => setIsOpenAlertDialog('')}
+        />
+        <H2
+          style={{
+            color: '#ACB6E5',
+            background: '-webkit-linear-gradient(0deg, #ACB6E5, #86FDE8)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            paddingRight: 20,
+            letterSpacing: 1.1,
+          }}
+        >
+          XYM Monster 😈
+        </H2>
+        <Paragraph>What you get depends on your luck!</Paragraph>
+        <Paragraph theme="alt1" size="$3" marginTop="$3">
+          XYM Monster is a game where you can get a random XYM Monster by inscribing today's events on the blockchain.
+        </Paragraph>
+        <Lottie source={EggAnimation} autoPlay loop style={{ height: 400 }} />
+        <YStack rowGap={'$4'}>
+          <XStack jc="center">
+            <Paragraph>Input your publicKey.</Paragraph>
+          </XStack>
+          <XStack jc="center" space={'$3'}>
+            <Input placeholder="PublicKey" value={publicKey} width={'80%'} onChange={handlePublicKeyChange} />
+            {isMobileDevice() && (
+              <Button
+                onPress={() => {
+                  window.location.href = 'alice://sign?type=request_pubkey';
+                }}
+              >
+                aLice
+              </Button>
+            )}
+          </XStack>
+          <XStack jc="center">
+            <Button themeShallow fontWeight="bold" paddingLeft={'$8'} paddingRight={'$8'} onPress={hundleGameStart}>
+              GAME START !!
+            </Button>
+          </XStack>
+        </YStack>
+        <SheetBase isOpen={isOpen} onOpenChange={setIsOpen}>
+          <ReportModal
+            items={ITEMS}
+            onSubmit={(e) => {
+              handleSend(e.text, e.mosaicId1, e.mosaicId2);
+            }}
+          />
+        </SheetBase>
+      </YStack>
     </YStack>
   );
 }
 
-
 interface ReportModalProps {
-  onSubmit: (e: { text?: string; mosaicId1?: string;  mosaicId2?: string }) => void;
+  onSubmit: (e: { text?: string; mosaicId1?: string; mosaicId2?: string }) => void;
   items: MosaicSelectProps[];
 }
 
@@ -240,15 +264,41 @@ function ReportModal(props: ReportModalProps): JSX.Element {
   const [mosaicId2, setMosaicId2] = useState<string>(props.items[1]?.value ?? 'none');
 
   const handleSubmit = () => {
-    let text: string | undefined = "";
-    if(title != "") {
+    let text: string | undefined = '';
+    if (title != '') {
       text += `${title}\n----------\n`;
     }
-    if(message != "") {
+    if (message != '') {
       text += `【報告内容】${message}`;
     }
-    text = text == "" ? undefined : text;
-    props.onSubmit({ text, mosaicId1: mosaicId1 === 'none' ? undefined : mosaicId1, mosaicId2: mosaicId2 === 'none' ? undefined : mosaicId2 });
+    text = text == '' ? undefined : text;
+    props.onSubmit({
+      text,
+      mosaicId1: mosaicId1 === 'none' ? undefined : mosaicId1,
+      mosaicId2: mosaicId2 === 'none' ? undefined : mosaicId2,
+    });
+  };
+
+  const handleOnChangeSelect1 = (text: string) => {
+    console.log(text, mosaicId2);
+
+    if (mosaicId2 === text) {
+      console.log('mosaicId2 === text');
+      setMosaicId2('none');
+    }
+    setMosaicId1(text);
+  };
+
+  const handleOnChangeSelect2 = (text: string) => {
+    console.log(mosaicId1 === text, text);
+    if (mosaicId1 === text) return;
+    if (mosaicId1 === 'none') {
+      console.log('11');
+      setMosaicId1(text);
+    } else {
+      console.log('22');
+      setMosaicId2(text);
+    }
   };
 
   return (
@@ -274,8 +324,14 @@ function ReportModal(props: ReportModalProps): JSX.Element {
         <View>
           <Label>Token</Label>
           <YStack space={'$3'} f={1}>
-            <SelectBase items={props.items} select={{ id: 'xymMon', value: mosaicId1, onValueChange: setMosaicId1 }}/>
-            <SelectBase items={props.items} select={{ id: 'xymMon', value: mosaicId2, onValueChange: setMosaicId2 }} />
+            <SelectBase
+              items={props.items}
+              select={{ id: 'xymMon1', value: mosaicId1, onValueChange: handleOnChangeSelect1 }}
+            />
+            <SelectBase
+              items={props.items}
+              select={{ id: 'xymMon2', value: mosaicId2, onValueChange: handleOnChangeSelect2 }}
+            />
           </YStack>
         </View>
         <Button themeInverse onPress={handleSubmit} fontWeight={'bold'} marginTop={'$4'}>

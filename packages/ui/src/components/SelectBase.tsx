@@ -3,23 +3,24 @@ import { getFontSize } from '@tamagui/font-size';
 import { Check, ChevronDown, ChevronUp } from '@tamagui/lucide-icons';
 import { Select, SelectProps } from '@tamagui/select';
 import { Sheet } from '@tamagui/sheet';
-import { XStack, YStack } from '@tamagui/stacks';
+import { YStack } from '@tamagui/stacks';
 
 export function SelectBase(props: {
   select: SelectProps;
   style?: { maxWidth?: number };
   items: { name: string; value: string }[];
 }) {
+  console.log("aa",props.select.id,props.select.value)
   return (
-    <Select {...props.select}>
+    <Select id={props.select.id} value={props.select.value} onValueChange={props.select.onValueChange} native>
       <Select.Trigger maxWidth={props.style?.maxWidth} iconAfter={ChevronDown}>
-        <Select.Value placeholder="select" />
+        <Select.Value placeholder="select"  />
       </Select.Trigger>
 
-      <Adapt when="sm" platform="touch">
-        <Sheet native modal dismissOnSnapToBottom>
-          <Sheet.Frame>
-            <Sheet.ScrollView>
+      <Adapt  when="sm" platform="touch">
+        <Sheet  native modal dismissOnSnapToBottom>
+          <Sheet.Frame >
+            <Sheet.ScrollView >
               <Adapt.Contents />
             </Sheet.ScrollView>
           </Sheet.Frame>
@@ -33,8 +34,8 @@ export function SelectBase(props: {
             <ChevronUp size={20} />
           </YStack>
         </Select.ScrollUpButton>
-        <Select.Viewport minWidth={200} enterStyle={{ o: 0, y: -10 }} exitStyle={{ o: 0, y: 10 }}>
-          <XStack>
+        <Select.Viewport enterStyle={{ o: 0, y: -10 }} exitStyle={{ o: 0, y: 10 }}>
+          <YStack  ai={"stretch"}>
             <Select.Group space="$0">
               {props.items.map((item, i) => {
                 return (
@@ -47,7 +48,6 @@ export function SelectBase(props: {
                 );
               })}
             </Select.Group>
-            {/* special icon treatment for native */}
             {props.select.native && (
               <YStack
                 position="absolute"
@@ -62,7 +62,7 @@ export function SelectBase(props: {
                 <ChevronDown size={getFontSize((props.select.size ?? '$true') as any)} />
               </YStack>
             )}
-          </XStack>
+          </YStack>
         </Select.Viewport>
 
         <Select.ScrollDownButton
