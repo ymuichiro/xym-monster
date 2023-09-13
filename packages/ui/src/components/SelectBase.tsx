@@ -10,7 +10,6 @@ export function SelectBase(props: {
   style?: { maxWidth?: number };
   items: { name: string; value: string }[];
 }) {
-  console.log("aa",props.select.id,props.select.value)
   return (
     <Select id={props.select.id} value={props.select.value} onValueChange={props.select.onValueChange} native>
       <Select.Trigger maxWidth={props.style?.maxWidth} iconAfter={ChevronDown}>

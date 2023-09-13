@@ -39,6 +39,7 @@ import AlertDialogMonster from '../components/AlertDialog';
 interface MosaicSelectProps {
   name: string;
   value: string;
+  amount: number;
 }
 
 /**
@@ -49,7 +50,7 @@ export function Start(): JSX.Element {
   const [isSSSInstaled, setIsSSSInstaled] = useState<boolean>(true);
   const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>('');
   const [publicKey, setPublicKey] = useState<string>('');
-  const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none' }]);
+  const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none', amount: 0 }]);
   const router = useRouter();
   const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
 
@@ -91,7 +92,7 @@ export function Start(): JSX.Element {
     }
 
     // モンスターのセレクトボックスの初期化
-    setItems([{ name: 'none', value: 'none' }]);
+    setItems([{ name: 'none', value: 'none', amount: 0 }]);
 
     // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
     const accountService = new AccountService(publicKey);
@@ -112,9 +113,9 @@ export function Start(): JSX.Element {
             setItems((prev) => [
               ...prev,
               {
-                name:
-                  monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
+                name: monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
                 value: mosaic.id,
+                amount: Number(mosaic.amount),
               },
             ]);
           }
@@ -280,8 +281,6 @@ function ReportModal(props: ReportModalProps): JSX.Element {
   };
 
   const handleOnChangeSelect1 = (text: string) => {
-    console.log(text, mosaicId2);
-
     if (mosaicId2 === text) {
       console.log('mosaicId2 === text');
       setMosaicId2('none');
@@ -290,13 +289,12 @@ function ReportModal(props: ReportModalProps): JSX.Element {
   };
 
   const handleOnChangeSelect2 = (text: string) => {
+    const amount = props.items.find((item) => item.value === text)?.amount;
     console.log(mosaicId1 === text, text);
-    if (mosaicId1 === text) return;
+    if (mosaicId1 === text && amount == 1) return;
     if (mosaicId1 === 'none') {
-      console.log('11');
       setMosaicId1(text);
     } else {
-      console.log('22');
       setMosaicId2(text);
     }
   };
