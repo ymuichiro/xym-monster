@@ -118,28 +118,16 @@ export function Start(): JSX.Element {
     );
     const node = await getActiveNode();
 
-    let txs: any = [];
-    let count = 1;
     const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
 
-    while(true){
-      const t = await TransactionService.searchConfirmedTransactions(node, {
-          type: [16724],
-          recipientAddress: address,
-          signerPublicKey: publicKey,
-          pageSize: 20,
-          pageNumber: count,
-          order: Order.Desc,
-      })
-      if(t.data.length == 0 || previous1DayUtcTimestamp > t.data[0].meta.timestamp) {
-          break
-      } else {
-          count++;
-          txs = txs.concat(t.data)
-      };
-    }
-    txs = filterXDayTransactions(txs, previous1DayUtcTimestamp);
-    
+    const t = await TransactionService.searchConfirmedTransactions(node, {
+        type: [16724],
+        recipientAddress: address,
+        signerPublicKey: publicKey,
+        pageSize: 20,
+        order: Order.Desc,
+    })
+    const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
     if(txs.length > limit) {
       setErrorMessage(`You have already exceeded the daily gacha limit of ${limit} times.`);
       return;
