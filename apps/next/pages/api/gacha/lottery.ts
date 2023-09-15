@@ -162,25 +162,16 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
     const keyPair = new symbolSdk.symbol.KeyPair(new symbolSdk.PrivateKey(process.env.SYSTEM_PRIVATE_KEY));
     const publicKey = symbolSdk.utils.uint8ToHex(keyPair.publicKey.bytes);
     let txs: any = [];
-    let count = 1;
 
     // 承認済みトランザクションを抽出
-    while(true){
-        const t = await TransactionService.searchConfirmedTransactions(node, {
-            type: [16724],
-            recipientAddress: address,
-            signerPublicKey: publicKey,
-            pageSize: 20,
-            pageNumber: count,
-            order: Order.Desc,
-        })
-        if(t.data.length == 0 || previous2DayUtcTimestamp > t.data[0].meta.timestamp) {
-            break
-        } else {
-            count++;
-            txs = txs.concat(t.data)
-        };
-    }
+    const t = await TransactionService.searchConfirmedTransactions(node, {
+        type: [16724],
+        recipientAddress: address,
+        signerPublicKey: publicKey,
+        pageSize: 30,
+        order: Order.Desc,
+    })
+    txs = txs.concat(t.data);
 
     // 未承認トランザクションを抽出
     const unconfirmedTransactions = await TransactionService.searchUnconfirmedTransactions(node, {
