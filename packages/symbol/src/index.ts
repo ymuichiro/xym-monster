@@ -1,10 +1,11 @@
-export { hexToAddress, getDataFromApi } from './utils/utils';
+export { hexToAddress, getDataFromApi, getPreviousDayUtcTimestamp, filterXDayTransactions } from './utils/utils';
 export { default as isMobileDevice } from './utils/isMobileDevice';
 export { hexToUint8, utf8ToHex, uint8ToHex } from './utils/converter';
 export { default as AccountService } from './services/AccountService';
 export { default as TransactionService } from './services/TransactionService';
 export { default as BlockService } from './services/BlockService';
 export { default as NodeService } from './services/NodeService';
+export { default as ChainService } from './services/ChainService';
 export { default as MonsterService } from './services/MonsterService';
 export { default as TransactionBuilderService } from './services/TransactionBuilderService';
 export { default as Mosaic } from './models/Mosaic';

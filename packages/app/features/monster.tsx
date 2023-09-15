@@ -57,21 +57,31 @@ export function Monster(props: MonsterProps) {
     setIsGettingMonster(true);
     setIsGetTreasureLoading(true);
     const node = await getActiveNode();
+    console.log(node);
     const treasureData = await TransactionService.getTreasure(node, (process.env.NEXT_PUBLIC_BACKEND as string), hash);
-    const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(node, (process.env.NEXT_PUBLIC_BACKEND as string), treasureData.payload);
-    if ('error' in result) {
-      console.error(result.error);
+    if ('error' in treasureData) {
+      console.error(treasureData.error);
       setErrorState('second');
-      setErrorMessage(result.error)
+      setErrorMessage(treasureData.error as string)
       setAnimationState('fail');
       setIsGettingMonster(false);
       setIsGetTreasureLoading(false);
     } else {
-      console.log(result);
-      setResultMessage(`You got a "${treasureData.monsterName}"! ${treasureData.mosaicId}: ${treasureData.rarity}"`);
-      setAnimationState('get');
-      setIsGettingMonster(false);
-      setIsGetTreasureLoading(false);
+      const result: { payload: string, hash: string } | { error: any } = await TransactionService.announceTransaction(node, (process.env.NEXT_PUBLIC_BACKEND as string), treasureData.payload);
+      if ('error' in result) {
+        console.error(result.error);
+        setErrorState('second');
+        setErrorMessage(result.error)
+        setAnimationState('fail');
+        setIsGettingMonster(false);
+        setIsGetTreasureLoading(false);
+      } else {
+        console.log(result);
+        setResultMessage(`You got a "${treasureData.monsterName}"! ${treasureData.mosaicId}: ${treasureData.rarity}"`);
+        setAnimationState('get');
+        setIsGettingMonster(false);
+        setIsGetTreasureLoading(false);
+      }
     }
   };
 

@@ -84,3 +84,24 @@ export function convertToMosaicArray(objArray: any[]): Mosaic[] {
 export function hexToAddress(recipientAddress: string): string {
   return base32.encode(new Uint8Array([...hexToUint8(recipientAddress), 0])).slice(0, -1);
 }
+
+export const getPreviousDayUtcTimestamp = (day: number): number =>  {
+  // SymbolのネメシスブロックのTimeStamp（TestNet）
+  const epocTime = 1667250467 * 1000;
+  // UTC時刻の現在のタイムスタンプを取得
+  const currentUTCTimestamp = Date.now();
+  // UTC時刻からDateオブジェクトを作成
+  const dateUTC = new Date(currentUTCTimestamp);
+  // 1日引く（UTC時刻で操作）
+  dateUTC.setUTCDate(dateUTC.getUTCDate() - day);
+  // UTC時刻での1日前のタイムスタンプを取得
+  const previousDayUTCTimestamp = dateUTC.getTime();
+  // SymbolのTimeStampに調整する
+  return previousDayUTCTimestamp - epocTime;
+}
+
+export const filterXDayTransactions = (txs: any[], x: number): any[] => {
+  return txs.filter((tx) => {
+      return Number(tx.meta.timestamp) > x;
+  });
+}

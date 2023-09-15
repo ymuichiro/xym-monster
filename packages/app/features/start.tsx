@@ -32,15 +32,24 @@ import {
   TransferTransaction,
   UncommonMonsters,
   isMobileDevice,
+  TransactionService,
+  filterXDayTransactions,
+  getPreviousDayUtcTimestamp,
 } from 'symbol';
 
 import AlertDialogMonster from '../components/AlertDialog';
+import { red } from '@tamagui/colors';
 
 interface MosaicSelectProps {
   name: string;
   value: string;
   amount: number;
 }
+
+const Order = {
+  Asc: 'asc',
+  Desc: 'desc'
+} as const;
 
 /**
  * ガチャアプリの起動、メッセージ入力の画面
@@ -51,8 +60,12 @@ export function Start(): JSX.Element {
   const [isOpenAlertDialog, setIsOpenAlertDialog] = useState<string>('');
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none', amount: 0 }]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const router = useRouter();
   const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
+
+  // ガチャの一日の制限回数
+  const limit = 10;
 
   useEffect(() => {
     const doAsyncTask = async () => {
@@ -104,6 +117,34 @@ export function Start(): JSX.Element {
       LegendaryMonsters
     );
     const node = await getActiveNode();
+
+    let txs: any = [];
+    let count = 1;
+    const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
+
+    while(true){
+      const t = await TransactionService.searchConfirmedTransactions(node, {
+          type: [16724],
+          recipientAddress: address,
+          signerPublicKey: publicKey,
+          pageSize: 20,
+          pageNumber: count,
+          order: Order.Desc,
+      })
+      if(t.data.length == 0 || previous1DayUtcTimestamp > t.data[0].meta.timestamp) {
+          break
+      } else {
+          count++;
+          txs = txs.concat(t.data)
+      };
+    }
+    txs = filterXDayTransactions(txs, previous1DayUtcTimestamp);
+    
+    if(txs.length > limit) {
+      setErrorMessage(`You have already exceeded the daily gacha limit of ${limit} times.`);
+      return;
+    }
+
     accountService
       .getAccountInfo(node)
       .then((accountInfo) => {
@@ -238,6 +279,9 @@ export function Start(): JSX.Element {
             <Button themeShallow fontWeight="bold" paddingLeft={'$8'} paddingRight={'$8'} onPress={hundleGameStart}>
               GAME START !!
             </Button>
+          </XStack>
+          <XStack jc="center">
+            {<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}
           </XStack>
         </YStack>
         <SheetBase isOpen={isOpen} onOpenChange={setIsOpen}>

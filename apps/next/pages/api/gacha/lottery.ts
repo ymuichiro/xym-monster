@@ -1,5 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next/types';
-import { TransactionService, MonsterRarity, Monster, MonsterService, CommonMonsters, UncommonMonsters, RareMonsters, EpicMonsters, LegendaryMonsters  } from 'symbol'
+import { 
+    TransactionService, 
+    MonsterRarity, 
+    Monster, 
+    MonsterService, 
+    CommonMonsters, 
+    UncommonMonsters, 
+    RareMonsters, 
+    EpicMonsters, 
+    LegendaryMonsters, 
+    filterXDayTransactions,
+    getPreviousDayUtcTimestamp,
+} from 'symbol'
 import symbolSdk from 'symbol-sdk';
 
 // txの内容によって当選するモンスターを返す関数
@@ -118,17 +130,31 @@ async function getHandle(req: NextApiRequest, res: NextApiResponse) {
     res.status(200).json({result});
 }
 
+const Order = {
+    Asc: 'asc',
+    Desc: 'desc'
+  } as const;
+
+  
 async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, rarity?: string } | { error: string }>{
+    // ガチャの一日の制限回数
+    const limit = 10;
+
     if(tx.transaction.type != 16724) throw new Error('transaction type is not transfer transaction');
     let monster = undefined
     try  {
         monster = chooseMonster(tx);
-    } catch {
-        return ({ error: 'unfortunately, you can not get a new monster' });
+    } catch (error: any) {
+        return ({ error: `unfortunately, you can not get a new monster: ${error.message}` });
     }
 
+    const previous2DayUtcTimestamp = getPreviousDayUtcTimestamp(2);
+    const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
+
     const { network, signerPublicKey } = tx.transaction;
-    const { hash } = tx.meta;
+    const { hash, timestamp } = tx.meta;
+
+    if(Number(timestamp) < previous2DayUtcTimestamp) return ({ error: `You will not get a monster in this hash because the deadline(2days) has passed: ${hash}` });
 
     const facade = network == 152 ? new symbolSdk.facade.SymbolFacade('testnet') : new symbolSdk.facade.SymbolFacade('mainnet');
     const address = facade.network.publicKeyToAddress(new symbolSdk.PublicKey(symbolSdk.utils.hexToUint8(signerPublicKey))).toString();
@@ -144,32 +170,30 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
             type: [16724],
             recipientAddress: address,
             signerPublicKey: publicKey,
-            pageSize: 100,
+            pageSize: 20,
             pageNumber: count,
+            order: Order.Desc,
         })
-        if(t.data.length == 0) {
+        if(t.data.length == 0 || previous2DayUtcTimestamp > t.data[0].meta.timestamp) {
             break
         } else {
             count++;
             txs = txs.concat(t.data)
         };
     }
+
     // 未承認トランザクションを抽出
-    while(true){
-        const t = await TransactionService.searchUnconfirmedTransactions(node, {
-            type: [16724],
-            recipientAddress: address,
-            signerPublicKey: publicKey,
-            pageSize: 100,
-        })
-        if(t.data.length == 0) {
-            break
-        } else {
-            count++;
-            txs = txs.concat(t.data)
-        };
-    }
-    
+    const unconfirmedTransactions = await TransactionService.searchUnconfirmedTransactions(node, {
+        type: [16724],
+        recipientAddress: address,
+        signerPublicKey: publicKey,
+        pageSize: 100,
+    })
+    txs = txs.concat(unconfirmedTransactions.data);
+    txs = filterXDayTransactions(txs, previous1DayUtcTimestamp);
+
+    if(txs.length > limit) return ({ error: `You have already exceeded the daily gacha limit of ${limit} times.` });
+
     // トランザクション内でHashを使用していないか確認
     for (const tx of txs) {
         if(tx.transaction.message != undefined && tx.transaction.message == hash){
