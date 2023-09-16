@@ -183,7 +183,7 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
     txs = txs.concat(unconfirmedTransactions.data);
     txs = filterXDayTransactions(txs, previous1DayUtcTimestamp);
 
-    if(txs.length > limit) return ({ error: `You have already exceeded the daily gacha limit of ${limit} times.` });
+    if(txs.length >= limit) return ({ error: `You have already exceeded the daily gacha limit of ${limit} times.` });
 
     // トランザクション内でHashを使用していないか確認
     for (const tx of txs) {

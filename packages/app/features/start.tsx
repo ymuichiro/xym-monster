@@ -128,7 +128,7 @@ export function Start(): JSX.Element {
         order: Order.Desc,
     })
     const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
-    if(txs.length > limit) {
+    if(txs.length >= limit) {
       setErrorMessage(`You have already exceeded the daily gacha limit of ${limit} times.`);
       return;
     }
