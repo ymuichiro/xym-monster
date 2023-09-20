@@ -133,9 +133,9 @@ async function getHandle(req: NextApiRequest, res: NextApiResponse) {
 const Order = {
     Asc: 'asc',
     Desc: 'desc'
-  } as const;
+} as const;
 
-  
+
 async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, rarity?: string } | { error: string }>{
     // ガチャの一日の制限回数
     const limit = 10;
