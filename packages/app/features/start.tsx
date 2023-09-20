@@ -14,6 +14,7 @@ import {
 } from '@my/ui';
 import EggAnimation from 'app/assets/jsons/egg-animation.json';
 import { getActiveNode, getEnumKeyByEnumValue } from 'app/services/common';
+import { ClipboardPaste } from '@tamagui/lucide-icons';
 import Cookies from 'js-cookie';
 import Lottie from 'lottie-react-native';
 import { useEffect, useState } from 'react';
@@ -156,6 +157,10 @@ export function Start(): JSX.Element {
     setIsOpen(!isOpen);
   };
 
+  const handlePastePubKey = async () => {
+    setPublicKey(await navigator.clipboard.readText());
+  };
+
   // セットした情報によりトランザクションを構築する
   const handleSend = async (
     message: string | undefined,
@@ -254,13 +259,16 @@ export function Start(): JSX.Element {
           <XStack jc="center" space={'$3'}>
             <Input placeholder="PublicKey" value={publicKey} width={'80%'} onChange={handlePublicKeyChange} />
             {isMobileDevice() && (
-              <Button
+              <XStack space={'$4'} ai={'center'}>
+                <Button
                 onPress={() => {
                   window.location.href = 'alice://sign?type=request_pubkey';
                 }}
               >
                 aLice
               </Button>
+              <Button icon={<ClipboardPaste />} onPress={handlePastePubKey} />
+              </XStack>
             )}
           </XStack>
           <XStack jc="center">

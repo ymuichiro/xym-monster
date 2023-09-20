@@ -45,12 +45,16 @@ export function Monster(props: MonsterProps) {
     }
   }, []);
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string) => {
+    await navigator.clipboard.writeText(text);
   };
 
-  const handlePaste = () => {
-    navigator.clipboard.readText();
+  const handlePasteHash = async () => {
+    setHash(await navigator.clipboard.readText());
+  };
+
+  const handlePastePayload = async () => {
+    setPayload(await navigator.clipboard.readText());
   };
 
   const handleGetTreasure = async () => {
@@ -131,7 +135,7 @@ export function Monster(props: MonsterProps) {
           <XStack space={'$4'} ai={'center'}>
             <Input f={1} placeholder="Transaction Hash" value={hash} onChangeText={setHash} />
             <Button icon={<Copy />} onPress={()=>handleCopy(hash)} />
-            <Button icon={<ClipboardPaste />} onPress={handlePaste} />
+            <Button icon={<ClipboardPaste />} onPress={handlePasteHash} />
           </XStack>
           <Button themeInverse onPress={handleGetTreasure} disabled={isGettingMonster} opacity={isGettingMonster == true ? 0.5 : 1}>
             YEAH!
@@ -150,7 +154,7 @@ export function Monster(props: MonsterProps) {
           <YStack space={'$4'} width={'100%'}>
             <Paragraph>Input SignedPayload !!</Paragraph>
             <Input f={1} placeholder="Signed Payload" value={payload} onChangeText={setPayload} />
-            <Button icon={<ClipboardPaste />} onPress={handlePaste} />
+            <Button icon={<ClipboardPaste />} onPress={handlePastePayload} />
           </YStack>
           </XStack>
           <Button themeInverse onPress={handleAnnounce}>

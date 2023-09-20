@@ -25,11 +25,6 @@ export default class Transaction {
       window.location.href = url.toString();
       return 'aLice';
     } else {
-      let urlStr = `alice://sign?type=request_sign_transaction&data=${this.payload}`;
-      if(this.signerPublicKey !== undefined) {
-        urlStr += `&set_public_key=${this.signerPublicKey}`;
-    }
-    console.log(urlStr)
       setTransactionByPayload(this.payload);
       try {
         const signedTransaction = await requestSign();
