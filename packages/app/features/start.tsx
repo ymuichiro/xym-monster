@@ -1,20 +1,7 @@
-import {
-  Button,
-  H2,
-  H3,
-  Input,
-  Label,
-  Paragraph,
-  ScrollView,
-  SelectBase,
-  SheetBase,
-  View,
-  XStack,
-  YStack,
-} from '@my/ui';
+import { Button, H2, H3, Input, Label, Paragraph, ScrollView, SelectBase, SheetBase, XStack, YStack } from '@my/ui';
+import { ClipboardPaste } from '@tamagui/lucide-icons';
 import EggAnimation from 'app/assets/jsons/egg-animation.json';
 import { getActiveNode, getEnumKeyByEnumValue } from 'app/services/common';
-import { ClipboardPaste } from '@tamagui/lucide-icons';
 import Cookies from 'js-cookie';
 import Lottie from 'lottie-react-native';
 import { useEffect, useState } from 'react';
@@ -30,16 +17,15 @@ import {
   Mosaic,
   NetworkType,
   RareMonsters,
+  TransactionService,
   TransferTransaction,
   UncommonMonsters,
-  isMobileDevice,
-  TransactionService,
   filterXDayTransactions,
   getPreviousDayUtcTimestamp,
+  isMobileDevice,
 } from 'symbol';
 
 import AlertDialogMonster from '../components/AlertDialog';
-import { red } from '@tamagui/colors';
 
 interface MosaicSelectProps {
   name: string;
@@ -49,7 +35,7 @@ interface MosaicSelectProps {
 
 const Order = {
   Asc: 'asc',
-  Desc: 'desc'
+  Desc: 'desc',
 } as const;
 
 /**
@@ -122,14 +108,14 @@ export function Start(): JSX.Element {
     const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
 
     const t = await TransactionService.searchConfirmedTransactions(node, {
-        type: [16724],
-        recipientAddress: address,
-        signerPublicKey: publicKey,
-        pageSize: 20,
-        order: Order.Desc,
-    })
+      type: [16724],
+      recipientAddress: address,
+      signerPublicKey: publicKey,
+      pageSize: 20,
+      order: Order.Desc,
+    });
     const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
-    if(txs.length >= limit) {
+    if (txs.length >= limit) {
       setErrorMessage(`You have already exceeded the daily gacha limit of ${limit} times.`);
       return;
     }
@@ -143,7 +129,8 @@ export function Start(): JSX.Element {
             setItems((prev) => [
               ...prev,
               {
-                name: monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
+                name:
+                  monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
                 value: mosaic.id,
                 amount: Number(mosaic.amount),
               },
@@ -261,13 +248,13 @@ export function Start(): JSX.Element {
             {isMobileDevice() && (
               <XStack space={'$4'} ai={'center'}>
                 <Button
-                onPress={() => {
-                  window.location.href = 'alice://sign?type=request_pubkey';
-                }}
-              >
-                aLice
-              </Button>
-              <Button icon={<ClipboardPaste />} onPress={handlePastePubKey} />
+                  onPress={() => {
+                    window.location.href = 'alice://sign?type=request_pubkey';
+                  }}
+                >
+                  aLice
+                </Button>
+                <Button icon={<ClipboardPaste />} onPress={handlePastePubKey} />
               </XStack>
             )}
           </XStack>
@@ -276,9 +263,7 @@ export function Start(): JSX.Element {
               GAME START !!
             </Button>
           </XStack>
-          <XStack jc="center">
-            {<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}
-          </XStack>
+          <XStack jc="center">{<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}</XStack>
         </YStack>
         <SheetBase isOpen={isOpen} onOpenChange={setIsOpen}>
           <ReportModal
@@ -343,35 +328,29 @@ function ReportModal(props: ReportModalProps): JSX.Element {
     <ScrollView>
       <YStack space={'$3'} paddingBottom={'$8'} f={1} marginLeft={30} marginRight={30}>
         <H3>Write Report</H3>
-        <View>
-          <Label>Report Title</Label>
-          <Input value={title} onChangeText={setTitle} style={{ width: '100%' }} />
-        </View>
-        <View>
-          <Label>Message</Label>
-          <Input
-            rows={8}
-            placeholder="Maximum length is 300 characters."
-            multiline
-            value={message}
-            onChangeText={setMessage}
-            style={{ width: '100%' }}
-            maxLength={300}
+        <Label>Report Title</Label>
+        <Input value={title} onChangeText={setTitle} style={{ width: '100%' }} />
+        <Label>Message</Label>
+        <Input
+          rows={8}
+          placeholder="Maximum length is 300 characters."
+          multiline
+          value={message}
+          onChangeText={setMessage}
+          style={{ width: '100%' }}
+          maxLength={300}
+        />
+        <Label>Token</Label>
+        <YStack space={'$3'} f={1}>
+          <SelectBase
+            items={props.items}
+            select={{ id: 'xymMon1', value: mosaicId1, onValueChange: handleOnChangeSelect1 }}
           />
-        </View>
-        <View>
-          <Label>Token</Label>
-          <YStack space={'$3'} f={1}>
-            <SelectBase
-              items={props.items}
-              select={{ id: 'xymMon1', value: mosaicId1, onValueChange: handleOnChangeSelect1 }}
-            />
-            <SelectBase
-              items={props.items}
-              select={{ id: 'xymMon2', value: mosaicId2, onValueChange: handleOnChangeSelect2 }}
-            />
-          </YStack>
-        </View>
+          <SelectBase
+            items={props.items}
+            select={{ id: 'xymMon2', value: mosaicId2, onValueChange: handleOnChangeSelect2 }}
+          />
+        </YStack>
         <Button themeInverse onPress={handleSubmit} fontWeight={'bold'} marginTop={'$4'}>
           SUBMIT
         </Button>
