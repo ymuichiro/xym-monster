@@ -130,7 +130,13 @@ export function Monster(props: MonsterProps) {
         <View enterStyle={{ x: -300, opacity: 0 }} animation="bouncy">
           <Lottie source={EggAnimation} autoPlay loop style={{ height: 300, width: 300, margin: '0 auto' }} />
         </View>
-        {isGetTreasureLoading ? <Spinner size="large" /> : <Paragraph>Success! Would you like to get eggs?</Paragraph>}
+        {isGetTreasureLoading ? 
+          <YStack>
+            <Spinner size="large" />
+            <Paragraph fontSize={12} marginTop={10}>結果が出るまで離れずに待っててね。</Paragraph>
+            <Paragraph fontSize={12}>※ページから離れてもモンスターは送信されます。</Paragraph>
+          </YStack> 
+          : <Paragraph>Success! Would you like to get eggs?</Paragraph>}
         <YStack space={'$4'} width={'100%'} maxWidth={600}>
           <XStack space={'$4'} ai={'center'}>
             <Input f={1} placeholder="Transaction Hash" value={hash} onChangeText={setHash} />
