@@ -46,7 +46,10 @@ function chooseMonster(tx: any): Monster | undefined{
         const r = monsterService.compareRarities(rarity1, rarity2);
         // レアリティが同じ場合
         if(r == undefined) {
-            const rand = monsterService.getRandomOutcome([0.3, 0.4, 0.3]);
+            // メッセージのアリナシで確率が変わる
+            const rand = message == undefined 
+                ? monsterService.getRandomOutcome([0.3, 0.4, 0.3]) 
+                : monsterService.getRandomOutcome([0.2, 0.4, 0.4]);
             console.log("same rarity")
             console.log(rand)
             switch(rand){
@@ -60,7 +63,10 @@ function chooseMonster(tx: any): Monster | undefined{
             return monsterService.chooseMonsterFromList(monsterService.getMonsterListFromRarity(rarity1));
         // レアリティが異なる場合
         } else {
-            const rand = monsterService.getRandomOutcome([0.2, 0.3, 0.3, 0.2]);
+            // メッセージのアリナシで確率が変わる
+            const rand = message == undefined 
+                ? monsterService.getRandomOutcome([0.2, 0.3, 0.3, 0.2]) 
+                : monsterService.getRandomOutcome([0.1, 0.3, 0.3, 0.3]);
             console.log("different rarity")
             console.log(rand)
             switch(rand){
