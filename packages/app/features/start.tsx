@@ -52,7 +52,7 @@ export function Start(): JSX.Element {
   const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
 
   // ガチャの一日の制限回数
-  const limit = 10;
+  const limit = 5;
 
   useEffect(() => {
     const doAsyncTask = async () => {

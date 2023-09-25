@@ -138,7 +138,7 @@ const Order = {
 
 async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, rarity?: string } | { error: string }>{
     // ガチャの一日の制限回数
-    const limit = 10;
+    const limit = 5;
 
     if(tx.transaction.type != 16724) throw new Error('transaction type is not transfer transaction');
     let monster = undefined
