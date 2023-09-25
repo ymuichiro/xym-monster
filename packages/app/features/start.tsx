@@ -289,20 +289,35 @@ function ReportModal(props: ReportModalProps): JSX.Element {
   const [mosaicId1, setMosaicId1] = useState<string>(props.items[0]?.value ?? 'none');
   const [mosaicId2, setMosaicId2] = useState<string>(props.items[1]?.value ?? 'none');
 
+  const reportTitles: {"name": string, "value": string}[] = 
+    [
+      {name: 'none', value: 'none'},
+      {name: 'ジムツア報告', value: 'ジムツア報告'},
+      {name: '今日頑張ったこと', value: '今日頑張ったこと'},
+      {name: '今日の天気', value: '今日の天気'},
+      {name: 'その他', value: 'その他'}];
+
   const handleSubmit = () => {
-    let text: string | undefined = '';
-    if (title != '') {
-      text += `${title}\n----------\n`;
+    let text: {"title": string, "message": string} | undefined = {"title": '', "message": ''};
+    if(message != '') {
+      text.message = message;
+      if (title != 'none') {
+        text.title = title;
+      }
     }
-    if (message != '') {
-      text += `【報告内容】${message}`;
+    else {
+      text = undefined;
     }
-    text = text == '' ? undefined : text;
+
     props.onSubmit({
-      text,
+      text: JSON.stringify(text),
       mosaicId1: mosaicId1 === 'none' ? undefined : mosaicId1,
       mosaicId2: mosaicId2 === 'none' ? undefined : mosaicId2,
     });
+  };
+
+  const handleOnChangeTitle = (text: string) => {
+    setTitle(text);
   };
 
   const handleOnChangeSelect1 = (text: string) => {
@@ -329,7 +344,10 @@ function ReportModal(props: ReportModalProps): JSX.Element {
       <YStack space={'$3'} paddingBottom={'$8'} f={1} marginLeft={30} marginRight={30}>
         <H3>Write Report</H3>
         <Label>Report Title</Label>
-        <Input value={title} onChangeText={setTitle} style={{ width: '100%' }} />
+        <SelectBase
+              items={reportTitles}
+              select={{ id: 'reportTitle', value: title, onValueChange: handleOnChangeTitle }}
+            />
         <Label>Message</Label>
         <Input
           rows={8}
