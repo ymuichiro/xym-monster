@@ -82,18 +82,21 @@ function chooseMonster(tx: any): Monster | undefined{
         }
     // １つモザイクがある場合
     } else if(rarity1 != undefined || rarity2 != undefined) {
+        const rand = message == undefined 
+            ? monsterService.getRandomOutcome([0.5]) 
+            : monsterService.getRandomOutcome([0.6]);
         if(rarity1 != undefined) {
-            if(monsterService.getRandomOutcome([0.5]) !== undefined) {
+            if(rand != undefined){
                 return monsterService.chooseMonsterFromList(monsterService.getMonsterListFromRarity(rarity1));
             } else {
-                return undefined;
+                return monsterService.chooseMonsterFromList(monsterService.getMonsterListFromRarity(monsterService.getLowerRarity(rarity1)));
             }
         }
         if(rarity2 != undefined) {
-            if(monsterService.getRandomOutcome([0.5]) !== undefined) {
+            if(rand == undefined){
                 return monsterService.chooseMonsterFromList(monsterService.getMonsterListFromRarity(rarity2));
             } else {
-                return undefined;
+                return monsterService.chooseMonsterFromList(monsterService.getMonsterListFromRarity(monsterService.getLowerRarity(rarity2)));
             }
         }
     }
