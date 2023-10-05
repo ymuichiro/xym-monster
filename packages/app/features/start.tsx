@@ -264,6 +264,11 @@ export function Start(): JSX.Element {
             </Button>
           </XStack>
           <XStack jc="center">{<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}</XStack>
+          <XStack jc="center">
+            <Paragraph>
+              <a href='/get'>😈 Get Monster</a>
+            </Paragraph>
+          </XStack>
         </YStack>
         <SheetBase isOpen={isOpen} onOpenChange={setIsOpen}>
           <ReportModal
