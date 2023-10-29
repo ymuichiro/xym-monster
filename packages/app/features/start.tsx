@@ -264,9 +264,12 @@ export function Start(): JSX.Element {
             </Button>
           </XStack>
           <XStack jc="center">{<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}</XStack>
-          <XStack jc="center">
+          <XStack jc="center" gap={10}>
             <Paragraph>
-              <a href='/get'>😈 Get Monster</a>
+              <a href="/get">😈 Get Monster</a>
+            </Paragraph>
+            <Paragraph>
+              <a href="/list">👾 Monsters List</a>
             </Paragraph>
           </XStack>
         </YStack>
@@ -294,23 +297,22 @@ function ReportModal(props: ReportModalProps): JSX.Element {
   const [mosaicId1, setMosaicId1] = useState<string>(props.items[0]?.value ?? 'none');
   const [mosaicId2, setMosaicId2] = useState<string>(props.items[1]?.value ?? 'none');
 
-  const reportTitles: {"name": string, "value": string}[] = 
-    [
-      {name: 'none', value: 'none'},
-      {name: 'ジムツア報告', value: 'ジムツア報告'},
-      {name: '今日頑張ったこと', value: '今日頑張ったこと'},
-      {name: '今日の天気', value: '今日の天気'},
-      {name: 'その他', value: 'その他'}];
+  const reportTitles: { name: string; value: string }[] = [
+    { name: 'none', value: 'none' },
+    { name: 'ジムツア報告', value: 'ジムツア報告' },
+    { name: '今日頑張ったこと', value: '今日頑張ったこと' },
+    { name: '今日の天気', value: '今日の天気' },
+    { name: 'その他', value: 'その他' },
+  ];
 
   const handleSubmit = () => {
-    let text: {"title": string, "message": string} | undefined = {"title": '', "message": ''};
-    if(message != '') {
+    let text: { title: string; message: string } | undefined = { title: '', message: '' };
+    if (message != '') {
       text.message = message;
       if (title != 'none') {
         text.title = title;
       }
-    }
-    else {
+    } else {
       text = undefined;
     }
 
@@ -350,9 +352,9 @@ function ReportModal(props: ReportModalProps): JSX.Element {
         <H3>Write Report</H3>
         <Label>Report Title</Label>
         <SelectBase
-              items={reportTitles}
-              select={{ id: 'reportTitle', value: title, onValueChange: handleOnChangeTitle }}
-            />
+          items={reportTitles}
+          select={{ id: 'reportTitle', value: title, onValueChange: handleOnChangeTitle }}
+        />
         <Label>Message</Label>
         <Input
           rows={8}
