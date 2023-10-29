@@ -112,8 +112,8 @@ export function MonstersList(props: MonsterProps) {
               width={'100%'}
               $gtXs={{ width: '100%' }}
               $gtSm={{ width: '50%' }}
-              $gtMd={{ width: '30%' }}
-              $gtLg={{ width: '20%' }}
+              $gtMd={{ width: monsters.filter((e) => e.reality === reality).length < 5 ? '50%' : '30%' }}
+              $gtLg={{ width: monsters.filter((e) => e.reality === reality).length < 5 ? '50%' : '20%' }}
               padding={10}
             >
               <MonsterCard {...item} onPressHandle={() => setCurrentImage(item.href)} />
@@ -140,6 +140,7 @@ function MonsterCard(item: Monsters & { onPressHandle: () => void }): JSX.Elemen
       hoverStyle={{ scale: 0.925 }}
       pressStyle={{ scale: 0.875 }}
       width={'100%'}
+      minWidth={200}
       bordered
       opacity={item.isHas ? 1 : 0.2}
       disabled={!item.isHas}
