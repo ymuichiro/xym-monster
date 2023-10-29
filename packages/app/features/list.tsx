@@ -122,6 +122,8 @@ export function MonstersList(props: MonsterProps) {
                 pressStyle={{ scale: 0.875 }}
                 width={'100%'}
                 bordered
+                opacity={item.isHas ? 1 : 0.2}
+                disabled={!item.isHas}
                 {...props}
               >
                 <Card.Header padded>
