@@ -6,6 +6,7 @@ import Cookies from 'js-cookie';
 import Lottie from 'lottie-react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
+
 import { getActivePublicKey, isAllowedSSS } from 'sss-module';
 import {
   AccountService,
@@ -171,7 +172,7 @@ export function Start(): JSX.Element {
     const transferTransaction = new TransferTransaction(
       node,
       process.env.NEXT_PUBLIC_BACKEND as string,
-      NetworkType.TESTNET,
+      NetworkType.MAINNET,
       address!,
       undefined,
       undefined,
@@ -199,6 +200,12 @@ export function Start(): JSX.Element {
 
   const handlePublicKeyChange = (event: any) => {
     setPublicKey(event.target.value);
+  };
+
+  const handleLinkClickToList = () => {
+    const queryParams = { publicKey };
+    const queryString = new URLSearchParams(queryParams).toString();
+    router.push(`/list?${queryString}`);
   };
 
   return (
@@ -235,6 +242,7 @@ export function Start(): JSX.Element {
           XYM Monster 😈
         </H2>
         <Paragraph>What you get depends on your luck!</Paragraph>
+
         <Paragraph theme="alt1" size="$3" marginTop="$3">
           XYM Monster is a game where you can get a random XYM Monster by inscribing today's events on the blockchain.
         </Paragraph>
@@ -269,7 +277,7 @@ export function Start(): JSX.Element {
               <a href="/get">😈 Get Monster</a>
             </Paragraph>
             <Paragraph>
-              <a href="/list">👾 Monsters List</a>
+              <a href="#" onClick={handleLinkClickToList}>👾 Monsters List</a>
             </Paragraph>
           </XStack>
         </YStack>

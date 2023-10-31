@@ -9,6 +9,7 @@ import Lottie from 'lottie-react-native';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
 import { TransactionService } from 'symbol';
+import { Image } from '@tamagui/image';
 
 interface MonsterProps {
   payload: string;
@@ -19,6 +20,7 @@ export function Monster(props: MonsterProps) {
   const [payload, setPayload] = useState<string>('');
   const [isGettingMonster , setIsGettingMonster] = useState<boolean>(false);
   const [resultMessage, setResultMessage] = useState<string>('');
+  const [monsterImageUrl, setMonsterImageUrl] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [animationState, setAnimationState] = useState<'wait' | 'present' | 'get' | 'fail' | 'announce'>('get');
   const [errorState, setErrorState] = useState<'first' | 'second'>();
@@ -81,7 +83,8 @@ export function Monster(props: MonsterProps) {
         setIsGetTreasureLoading(false);
       } else {
         console.log(result);
-        setResultMessage(`You got a "${treasureData.monsterName}"! ${treasureData.mosaicId}: ${treasureData.rarity}"`);
+        setResultMessage(`You got a "${treasureData.monsterName}!" Rarity: ${treasureData.rarity}`);
+        setMonsterImageUrl(process.env.NEXT_PUBLIC_METAL_NODE! + treasureData.metalId as string);
         setAnimationState('get');
         setIsGettingMonster(false);
         setIsGetTreasureLoading(false);
@@ -189,7 +192,21 @@ export function Monster(props: MonsterProps) {
           contentStyle={{ width: '100%', maxWidth: 600, minHeight: 300 }}
         >
           <YStack space={'$4'} f={1} jc="center" ai="center">
-            <Lottie source={EggAnimation} autoPlay loop style={{ height: 300, width: 300, margin: '0 auto' }} />
+            {/* <Lottie source={EggAnimation} autoPlay loop style={{ height: 300, width: 300, margin: '0 auto' }} /> */}
+            <XStack 
+              padding={'$4'}
+              jc="center">
+              <Image
+                    resizeMode="contain"
+                    alignSelf="center"
+                    padding={'$8'}
+                    source={{
+                      width: 250,
+                      height: 315,
+                      uri: monsterImageUrl,
+                    }}
+                  />
+            </XStack>
             <Button onPress={()=>{
               router.push({
                 pathname: '/',

@@ -145,7 +145,7 @@ const Order = {
 } as const;
 
 
-async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, rarity?: string } | { error: string }>{
+async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, metalId?:string, rarity?: string } | { error: string }>{
     // ガチャの一日の制限回数
     const limit = 5;
 
@@ -221,5 +221,5 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
     const transactionBuffer = transaction.serialize();
 	const hexPayload = symbolSdk.utils.uint8ToHex(transactionBuffer);
     
-    return { payload: hexPayload, "monsterName": monster?.name, "mosaicId": monster?.mosaicId, "rarity": monster?.getMonsterRarityAsString() };
+    return { payload: hexPayload, "monsterName": monster?.name, "mosaicId": monster?.mosaicId, "metalId": monster?.metalId,"rarity": monster?.getMonsterRarityAsString() };
 }
