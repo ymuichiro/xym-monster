@@ -21,7 +21,7 @@ export default function GetMonsterPage() {
       <Head>
         <title>Monsters List</title>
       </Head>
-      {isLoaded && <MonstersList payload={router.query.signed_payload as string} />}
+      {isLoaded && <MonstersList publicKey={router.query.publicKey as string} />}
     </>
   );
 }

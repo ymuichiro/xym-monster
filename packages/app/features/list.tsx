@@ -2,23 +2,24 @@ import { Button, Card, H1, H2, Paragraph, ScrollView, SheetBase, XStack, YStack 
 import { Image } from '@tamagui/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
+import { getActiveNode } from 'app/services/common';
 
-interface MonsterProps {
-  payload: string;
+interface ListProps {
+  publicKey: string;
 }
 
 interface Monsters {
   no: string; // モンスター No
-  reality: Reality; // モンスター のレア度
+  rarity: Reality; // モンスター のレア度
   name: string; // モンスター 名
   href: string; // モンスター 画像のURL ※ 画像データそのものだとちょっと重い
   isHas: boolean; // 自身がそのモンスターを持っているか否か
 }
 
-type Reality = 'common' | 'rare' | 'epic' | 'legendary';
+type Reality = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 function getRandomRarity() {
-  const rarities: Reality[] = ['common', 'rare', 'epic', 'legendary'];
+  const rarities: Reality[] = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
   const index = Math.floor(Math.random() * rarities.length);
   return rarities[index];
 }
@@ -28,9 +29,9 @@ const DUMMY_RESPONSE: Monsters[] = new Array(20).fill(null).map((_, index) => {
   return {
     no: `${index}`,
     name: isHas ? `Monster ${index}` : '????',
-    href: isHas ? '/twitter-card.png' : '/egg.png', // 一旦ダミー画像
+    href: isHas ? 'https://hideyoshi.mydns.jp:3001/content/metal/FeGjv3X5Ytx5ewbRcotzjeru4oZU7dZCDxGqUM6FvSXXKV' : '/egg.png', // 一旦ダミー画像
     isHas: isHas,
-    reality: getRandomRarity(),
+    rarity: getRandomRarity(),
   } as Monsters;
 });
 
@@ -40,20 +41,31 @@ const DUMMY_RESPONSE: Monsters[] = new Array(20).fill(null).map((_, index) => {
  * @param props
  * @returns
  */
-export function MonstersList(props: MonsterProps) {
+export function MonstersList(props: ListProps) {
   const [monsters, setMonsters] = useState<Monsters[]>([]);
-  const [reality, setReality] = useState<Reality>('common');
+  const [rarity, setRarity] = useState<Reality>('common');
   const [currentImage, setCurrentImage] = useState<string | null>(null);
 
   // モンスターの情報をサーバーより取得する
   const handleGetMonsters = async () => {
-    // const response = await fetch('/api/monsters', { method: 'POST', body: JSON.stringify({ uid: 'xxxxxxx' }) });
-    // setMonsters((await response.json()) as Monsters[]);
-    setMonsters(DUMMY_RESPONSE);
+    if(props.publicKey == undefined) throw new Error('publicKey is undefined');
+    const node = await getActiveNode();
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ publicKey: props.publicKey, node }),
+    };
+    const response = await fetch('/api/gacha/monsters', options);
+    const monsters = await response.json();
+    console.log(monsters)
+    setMonsters(monsters as Monsters[]);
+    // setMonsters(DUMMY_RESPONSE);
   };
 
   const handleSelectReality = (key: Reality) => {
-    setReality(key);
+    setRarity(key);
   };
 
   useLayoutEffect(() => {
@@ -96,8 +108,8 @@ export function MonstersList(props: MonsterProps) {
       </Paragraph>
       {/* actions panel */}
       <XStack justifyContent="center" flexWrap="wrap" gap={'$4'} py={'$4'}>
-        {(['common', 'rare', 'epic', 'legendary'] as Reality[]).map((item, index) => (
-          <Button themeInverse={reality == item} key={index} onPress={() => handleSelectReality(item)}>
+        {(['common', 'uncommon', 'rare', 'epic', 'legendary'] as Reality[]).map((item, index) => (
+          <Button themeInverse={rarity == item} key={index} onPress={() => handleSelectReality(item)}>
             {item}
           </Button>
         ))}
@@ -105,15 +117,15 @@ export function MonstersList(props: MonsterProps) {
       {/* monsters */}
       <XStack justifyContent="space-around" flexWrap="wrap" flexDirection="row">
         {monsters
-          .filter((e) => e.reality === reality)
+          .filter((e) => e.rarity === rarity)
           .map((item, index) => (
             <XStack
               key={index}
               width={'100%'}
               $gtXs={{ width: '100%' }}
               $gtSm={{ width: '50%' }}
-              $gtMd={{ width: monsters.filter((e) => e.reality === reality).length < 5 ? '50%' : '30%' }}
-              $gtLg={{ width: monsters.filter((e) => e.reality === reality).length < 5 ? '50%' : '20%' }}
+              $gtMd={{ width: monsters.filter((e) => e.rarity === rarity).length < 5 ? '50%' : '30%' }}
+              $gtLg={{ width: monsters.filter((e) => e.rarity === rarity).length < 5 ? '50%' : '20%' }}
               padding={10}
             >
               <MonsterCard {...item} onPressHandle={() => setCurrentImage(item.href)} />
