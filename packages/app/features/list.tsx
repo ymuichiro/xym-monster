@@ -2,7 +2,9 @@ import { Button, Card, H1, H2, Paragraph, ScrollView, SheetBase, XStack, YStack 
 import { Image } from '@tamagui/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
+import { useRouter } from 'solito/router';
 import { getActiveNode } from 'app/services/common';
+import AlertDialogMonster from '../components/AlertDialog';
 
 interface ListProps {
   publicKey: string;
@@ -45,10 +47,13 @@ export function MonstersList(props: ListProps) {
   const [monsters, setMonsters] = useState<Monsters[]>([]);
   const [rarity, setRarity] = useState<Reality>('common');
   const [currentImage, setCurrentImage] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [dialogMessage, setDialogMessage] = useState<string>('');
+
+  const router = useRouter();
 
   // モンスターの情報をサーバーより取得する
   const handleGetMonsters = async () => {
-    if(props.publicKey == undefined) throw new Error('publicKey is undefined');
     const node = await getActiveNode();
     const options = {
       method: 'POST',
@@ -59,8 +64,12 @@ export function MonstersList(props: ListProps) {
     };
     const response = await fetch('/api/gacha/monsters', options);
     const monsters = await response.json();
-    console.log(monsters)
-    setMonsters(monsters as Monsters[]);
+    if(monsters.error) {
+      setIsDialogOpen(true);
+      setDialogMessage(monsters.error);
+    } else {
+      setMonsters(monsters as Monsters[]);
+    }
     // setMonsters(DUMMY_RESPONSE);
   };
 
@@ -82,6 +91,17 @@ export function MonstersList(props: ListProps) {
       showsHorizontalScrollIndicator={false}
       showsVerticalScrollIndicator={false}
     >
+      <AlertDialogMonster
+        isOpen={isDialogOpen}
+        hasAccept={true}
+        hasCancel={false}
+        title="Alert"
+        description={dialogMessage}
+        acceptText="HOMEに戻る"
+        onAccept={() => router.push({
+          pathname: '/',
+        })}
+      />
       <XStack jc="flex-end" gap={10}>
         <Paragraph>
           <a href="/">Home</a>
