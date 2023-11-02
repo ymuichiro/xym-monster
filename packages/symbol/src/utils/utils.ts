@@ -86,8 +86,8 @@ export function hexToAddress(recipientAddress: string): string {
 }
 
 export const getPreviousDayUtcTimestamp = (day: number): number =>  {
-  // SymbolのネメシスブロックのTimeStamp（TestNet）
-  const epocTime = 1667250467 * 1000;
+  // SymbolのネメシスブロックのTimeStamp（MainNet）
+  const epocTime = 1615853185 * 1000;
   // UTC時刻の現在のタイムスタンプを取得
   const currentUTCTimestamp = Date.now();
   // UTC時刻からDateオブジェクトを作成
