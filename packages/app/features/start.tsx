@@ -116,8 +116,10 @@ export function Start(): JSX.Element {
       order: Order.Desc,
     });
     const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
+    const lastGacha = new Date(Number(txs[txs.length - 1].meta.timestamp) + 1615853185 * 1000);
+    console.log(formatDate(lastGacha))
     if (txs.length >= limit) {
-      setErrorMessage(`You have already exceeded the daily gacha limit of ${limit} times.`);
+      setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
       return;
     }
 
@@ -207,6 +209,17 @@ export function Start(): JSX.Element {
     const queryString = new URLSearchParams(queryParams).toString();
     router.push(`/list?${queryString}`);
   };
+
+  const formatDate = (date: Date) => {
+    const nextDay = new Date(date);
+    nextDay.setDate(nextDay.getDate() + 1);
+    const month = nextDay.getMonth() + 1;
+    const day = nextDay.getDate();
+    const hours = nextDay.getHours();
+    const minutes = nextDay.getMinutes();
+    const seconds = nextDay.getSeconds();
+    return month + '/' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+  }
 
   return (
     <YStack f={1} padding={'$4'} alignItems="center">
