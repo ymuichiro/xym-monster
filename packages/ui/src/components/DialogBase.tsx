@@ -8,6 +8,7 @@ interface SheetBaseProps {
   onOpenChange: (e: boolean) => void;
   children: React.ReactNode;
   contentStyle?: React.CSSProperties;
+  isCloseButton?: boolean;
 }
 
 export function DialogBase(props: SheetBaseProps): JSX.Element {
@@ -47,7 +48,7 @@ export function DialogBase(props: SheetBaseProps): JSX.Element {
           <Dialog.Description>{props.description}</Dialog.Description>
           {props.children}
           <Unspaced>
-            <Dialog.Close asChild>
+            <Dialog.Close asChild display={props.isCloseButton ? "block" : "none"}>
               <Button position="absolute" top="$3" right="$3" size="$1" circular icon={X} />
             </Dialog.Close>
           </Unspaced>

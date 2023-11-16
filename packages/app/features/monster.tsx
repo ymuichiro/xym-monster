@@ -190,6 +190,7 @@ export function Monster(props: MonsterProps) {
           description={resultMessage}
           onOpenChange={() => {}}
           contentStyle={{ width: '100%', maxWidth: 600, minHeight: 300 }}
+          isCloseButton={false}
         >
           <YStack space={'$4'} f={1} jc="center" ai="center">
             {/* <Lottie source={EggAnimation} autoPlay loop style={{ height: 300, width: 300, margin: '0 auto' }} /> */}
