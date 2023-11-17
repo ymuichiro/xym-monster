@@ -16,6 +16,7 @@ interface Monsters {
   name: string; // モンスター 名
   href: string; // モンスター 画像のURL ※ 画像データそのものだとちょっと重い
   isHas: boolean; // 自身がそのモンスターを持っているか否か
+  amount: number | undefined; // そのモンスターの保有数
 }
 
 type Reality = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -60,7 +61,7 @@ export function MonstersList(props: ListProps) {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ publicKey: props.publicKey, node }),
+      body: JSON.stringify({ publicKey: props.publicKey, node, network: 104 }),
     };
     const response = await fetch('/api/gacha/monsters', options);
     const monsters = await response.json();
@@ -174,7 +175,7 @@ function MonsterCard(item: Monsters & { onPressHandle: () => void }): JSX.Elemen
       width={'100%'}
       minWidth={200}
       bordered
-      opacity={item.isHas ? 1 : 0.2}
+      opacity={item.amount == 0 || item.amount == undefined ? 0.2 : 1}
       disabled={!item.isHas}
       onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       onPress={item.onPressHandle}
@@ -195,7 +196,7 @@ function MonsterCard(item: Monsters & { onPressHandle: () => void }): JSX.Elemen
         <YStack maxWidth={'100%'}>
           <Paragraph theme="alt2">{`No ${item.no.toString()}`}</Paragraph>
           <H2>{item.name}</H2>
-          <Paragraph theme="alt2">{item.isHas ? 'availability' : 'unavailable'}</Paragraph>
+          <Paragraph theme="alt2">{item.amount == undefined ? 'unavailable' : item.amount}</Paragraph>
         </YStack>
       </Card.Footer>
     </Card>

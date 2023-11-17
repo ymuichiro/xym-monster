@@ -1,4 +1,4 @@
-import { Button, H2, H3, Input, Label, Paragraph, ScrollView, SelectBase, SheetBase, XStack, YStack } from '@my/ui';
+import { Button, H2, H3, Input, Label, Paragraph, ScrollView, SelectBase, SheetBase, XStack, YStack, Spinner } from '@my/ui';
 import { ClipboardPaste } from '@tamagui/lucide-icons';
 import EggAnimation from 'app/assets/jsons/egg-animation.json';
 import { getActiveNode, getEnumKeyByEnumValue } from 'app/services/common';
@@ -6,7 +6,6 @@ import Cookies from 'js-cookie';
 import Lottie from 'lottie-react-native';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'solito/router';
-
 import { getActivePublicKey, isAllowedSSS } from 'sss-module';
 import {
   AccountService,
@@ -49,6 +48,8 @@ export function Start(): JSX.Element {
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none', amount: 0 }]);
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [isSpeener, setIsSpeener] = useState<boolean>(false);
+
   const router = useRouter();
   const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
 
@@ -81,70 +82,80 @@ export function Start(): JSX.Element {
 
   // ゲームスタートボタン押下時の処理
   const hundleGameStart = async () => {
-    if (publicKey == '') {
-      // 公開鍵が取得できなかった場合はアラートを表示する
-      setIsOpenAlertDialog('Please input you public key.');
-      return;
-    }
+    try {
+      setIsSpeener(true);
+      if (publicKey == '') {
+        // 公開鍵が取得できなかった場合はアラートを表示する
+        setIsOpenAlertDialog('Please input you public key.');
+        setIsSpeener(false);
+        return;
+      }
 
-    // モバイルの場合は公開鍵をCookieに保存する
-    if (isMobileDevice()) {
-      Cookies.set('publicKey', publicKey);
-    }
+      // モバイルの場合は公開鍵をCookieに保存する
+      if (isMobileDevice()) {
+        Cookies.set('publicKey', publicKey);
+      }
 
-    // モンスターのセレクトボックスの初期化
-    setItems([{ name: 'none', value: 'none', amount: 0 }]);
+      // モンスターのセレクトボックスの初期化
+      setItems([{ name: 'none', value: 'none', amount: 0 }]);
 
-    // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
-    const accountService = new AccountService(publicKey);
-    const monsterService = new MonsterService(
-      CommonMonsters,
-      UncommonMonsters,
-      RareMonsters,
-      EpicMonsters,
-      LegendaryMonsters
-    );
-    const node = await getActiveNode();
+      // 所有モザイクからモンスターを保有していればセレクトボックスに追加する
+      const accountService = new AccountService(publicKey);
+      const monsterService = new MonsterService(
+        CommonMonsters,
+        UncommonMonsters,
+        RareMonsters,
+        EpicMonsters,
+        LegendaryMonsters
+      );
+      const node = await getActiveNode();
+      const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
 
-    const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
-
-    const t = await TransactionService.searchConfirmedTransactions(node, {
-      type: [16724],
-      recipientAddress: address,
-      signerPublicKey: publicKey,
-      pageSize: 20,
-      order: Order.Desc,
-    });
-    const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
-    const lastGacha = new Date(Number(txs[txs.length - 1].meta.timestamp) + 1615853185 * 1000);
-    console.log(formatDate(lastGacha))
-    if (txs.length >= limit) {
-      setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
-      return;
-    }
-
-    accountService
-      .getAccountInfo(node)
-      .then((accountInfo) => {
-        accountInfo.account.mosaics.forEach((mosaic) => {
-          const monster = monsterService.getMonsterName(mosaic.id);
-          if (monster != undefined) {
-            setItems((prev) => [
-              ...prev,
-              {
-                name:
-                  monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
-                value: mosaic.id,
-                amount: Number(mosaic.amount),
-              },
-            ]);
-          }
-        });
-      })
-      .catch(() => {
-        setIsOpenAlertDialog('Unable to your account information.');
+      const t = await TransactionService.searchConfirmedTransactions(node, {
+        type: [16724],
+        recipientAddress: address,
+        signerPublicKey: publicKey,
+        pageSize: 20,
+        order: Order.Desc,
       });
-    setIsOpen(!isOpen);
+      const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
+      if(txs.length != 0){
+        const lastGacha = new Date(Number(txs[txs.length - 1].meta.timestamp) + 1615853185 * 1000);
+        console.log(formatDate(lastGacha))
+        if (txs.length >= limit) {
+          setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
+          setIsSpeener(false);
+          return;
+        }
+      }
+
+      accountService
+        .getAccountInfo(node)
+        .then((accountInfo) => {
+          accountInfo.account.mosaics.forEach((mosaic) => {
+            const monster = monsterService.getMonsterName(mosaic.id);
+            if (monster != undefined) {
+              setItems((prev) => [
+                ...prev,
+                {
+                  name:
+                    monster.name + ' : ' + getEnumKeyByEnumValue(MonsterRarity, monster.rarity) + ' : ' + mosaic.amount,
+                  value: mosaic.id,
+                  amount: Number(mosaic.amount),
+                },
+              ]);
+            }
+          });
+        })
+        .catch(() => {
+          setIsOpenAlertDialog('Unable to your account information.');
+        });
+      setIsSpeener(false);
+      setIsOpen(!isOpen);
+    } catch (error: any) {
+      console.error(error.message)
+      alert(`${error.message} \n リロードしてみてください。それでもおかしな場合は開発までご連絡をお願いします。`);
+    }
   };
 
   const handlePastePubKey = async () => {
@@ -170,21 +181,20 @@ export function Start(): JSX.Element {
       }
     }
 
-    const node = await getActiveNode();
-    const transferTransaction = new TransferTransaction(
-      node,
-      process.env.NEXT_PUBLIC_BACKEND as string,
-      NetworkType.MAINNET,
-      address!,
-      undefined,
-      undefined,
-      publicKey,
-      mosaics,
-      message,
-      false
-    );
-
     try {
+      const node = await getActiveNode();
+      const transferTransaction = new TransferTransaction(
+        node,
+        process.env.NEXT_PUBLIC_BACKEND as string,
+        NetworkType.MAINNET,
+        address!,
+        undefined,
+        undefined,
+        publicKey,
+        mosaics,
+        message,
+        false
+      );
       await transferTransaction.build();
       const signed_payload = await transferTransaction.sign();
 
@@ -195,7 +205,8 @@ export function Start(): JSX.Element {
       });
     } catch (error) {
       // エラーハンドリング
-      console.error('エラーが発生しました:', error);
+      console.error(error.message)
+      alert(`${error.message} \n リロードしてみてください。それでもおかしな場合は開発までご連絡をお願いします。`);
     }
     setIsOpen(false);
   };
@@ -280,9 +291,11 @@ export function Start(): JSX.Element {
             )}
           </XStack>
           <XStack jc="center">
+            <YStack>
             <Button themeShallow fontWeight="bold" paddingLeft={'$8'} paddingRight={'$8'} onPress={hundleGameStart}>
-              GAME START !!
+              GAME START !! {isSpeener ? <Spinner size="large" color="$green10" margin="100"/> : <></>}
             </Button>
+            </YStack>
           </XStack>
           <XStack jc="center">{<Paragraph color={'$red10Dark'}>{errorMessage}</Paragraph>}</XStack>
           <XStack jc="center" gap={10}>
