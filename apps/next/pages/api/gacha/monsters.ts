@@ -50,6 +50,7 @@ async function getHandle(req: NextApiRequest, res: NextApiResponse) {
         href: mosaicExists ? process.env.NEXT_PUBLIC_METAL_NODE + monster.metalId : "/egg.png",
         isHas: mosaicExists,
         amount: mosaicExists ? hasMosaic?.amount || 0 : undefined,
+        mosaicId: mosaicExists ? mosaicId : "",
       };
     });
     res.status(200).json(updatedMonsters);

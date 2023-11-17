@@ -17,6 +17,7 @@ interface Monsters {
   href: string; // モンスター 画像のURL ※ 画像データそのものだとちょっと重い
   isHas: boolean; // 自身がそのモンスターを持っているか否か
   amount: number | undefined; // そのモンスターの保有数
+  mosaicId: string; // モザイクID
 }
 
 type Reality = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
@@ -196,7 +197,7 @@ function MonsterCard(item: Monsters & { onPressHandle: () => void }): JSX.Elemen
         <YStack maxWidth={'100%'}>
           <Paragraph theme="alt2">{`No ${item.no.toString()}`}</Paragraph>
           <H2>{item.name}</H2>
-          <Paragraph theme="alt2">{item.amount == undefined ? 'unavailable' : item.amount}</Paragraph>
+          <Paragraph theme="alt2">{item.amount == undefined ? 'unavailable' : `${item.amount} : ${item.mosaicId}`}</Paragraph>
         </YStack>
       </Card.Footer>
     </Card>
