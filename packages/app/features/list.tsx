@@ -14,7 +14,8 @@ interface Monsters {
   no: string; // モンスター No
   rarity: Reality; // モンスター のレア度
   name: string; // モンスター 名
-  href: string; // モンスター 画像のURL ※ 画像データそのものだとちょっと重い
+  // href: string; // モンスター 画像のURL ※ 画像データそのものだとちょっと重い
+  metalId: string;
   isHas: boolean; // 自身がそのモンスターを持っているか否か
   amount: number | undefined; // そのモンスターの保有数
   mosaicId: string; // モザイクID
@@ -28,7 +29,7 @@ function getRandomRarity() {
   return rarities[index];
 }
 
-const DUMMY_RESPONSE: Monsters[] = new Array(20).fill(null).map((_, index) => {
+/* const DUMMY_RESPONSE: Monsters[] = new Array(20).fill(null).map((_, index) => {
   const isHas: boolean = Math.random() < 0.5;
   return {
     no: `${index}`,
@@ -37,7 +38,7 @@ const DUMMY_RESPONSE: Monsters[] = new Array(20).fill(null).map((_, index) => {
     isHas: isHas,
     rarity: getRandomRarity(),
   } as Monsters;
-});
+}); */
 
 /**
  * 保有しているモンスターと未保有のモンスター情報を表示する。
@@ -150,7 +151,7 @@ export function MonstersList(props: ListProps) {
               $gtLg={{ width: monsters.filter((e) => e.rarity === rarity).length < 5 ? '50%' : '20%' }}
               padding={10}
             >
-              <MonsterCard {...item} onPressHandle={() => setCurrentImage(item.href)} />
+              <MonsterCard {...item} onPressHandle={() => setCurrentImage(item.metalId)} />
             </XStack>
           ))}
       </XStack>
@@ -189,7 +190,7 @@ function MonsterCard(item: Monsters & { onPressHandle: () => void }): JSX.Elemen
           source={{
             width: width < 300 ? width : 300,
             height: 300,
-            uri: item.href,
+            uri: `./monsters/${item.metalId}.png`,
           }}
         />
       </Card.Header>

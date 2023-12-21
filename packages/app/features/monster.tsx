@@ -84,7 +84,8 @@ export function Monster(props: MonsterProps) {
       } else {
         console.log(result);
         setResultMessage(`You got a "${treasureData.monsterName}!" Rarity: ${treasureData.rarity}`);
-        setMonsterImageUrl(process.env.NEXT_PUBLIC_METAL_NODE! + treasureData.metalId as string);
+        //setMonsterImageUrl(process.env.NEXT_PUBLIC_METAL_NODE! + treasureData.metalId as string);
+        setMonsterImageUrl(`./monsters/${treasureData.metalId as string}.png`);
         setAnimationState('get');
         setIsGettingMonster(false);
         setIsGetTreasureLoading(false);
