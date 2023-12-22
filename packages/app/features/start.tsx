@@ -48,7 +48,7 @@ export function Start(): JSX.Element {
   const [publicKey, setPublicKey] = useState<string>('');
   const [ITEMS, setItems] = useState<MosaicSelectProps[]>([{ name: 'none', value: 'none', amount: 0 }]);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isSpeener, setIsSpeener] = useState<boolean>(false);
+  const [isSpinner, setIsSpinner] = useState<boolean>(false);
 
   const router = useRouter();
   const address = process.env.NEXT_PUBLIC_SYSTEM_ADDRESS as string;
@@ -83,11 +83,11 @@ export function Start(): JSX.Element {
   // ゲームスタートボタン押下時の処理
   const hundleGameStart = async () => {
     try {
-      setIsSpeener(true);
+      setIsSpinner(true);
       if (publicKey == '') {
         // 公開鍵が取得できなかった場合はアラートを表示する
         setIsOpenAlertDialog('Please input you public key.');
-        setIsSpeener(false);
+        setIsSpinner(false);
         return;
       }
 
@@ -124,7 +124,7 @@ export function Start(): JSX.Element {
         console.log(formatDate(lastGacha))
         if (txs.length >= limit) {
           setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
-          setIsSpeener(false);
+          setIsSpinner(false);
           return;
         }
       }
@@ -151,7 +151,7 @@ export function Start(): JSX.Element {
           setIsOpenAlertDialog('Unable to your account information.');
           setIsOpen(false);
         });
-      setIsSpeener(false);
+        setIsSpinner(false);
       setIsOpen(!isOpen);
     } catch (error: any) {
       console.error(error.message)
@@ -294,7 +294,7 @@ export function Start(): JSX.Element {
           <XStack jc="center">
             <YStack>
             <Button themeShallow fontWeight="bold" paddingLeft={'$8'} paddingRight={'$8'} onPress={hundleGameStart}>
-              GAME START !! {isSpeener ? <Spinner size="large" color="$green10" margin="100"/> : <></>}
+              GAME START !! {isSpinner ? <Spinner size="large" color="$green10" margin="100"/> : <></>}
             </Button>
             </YStack>
           </XStack>
