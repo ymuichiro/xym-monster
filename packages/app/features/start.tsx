@@ -149,6 +149,7 @@ export function Start(): JSX.Element {
         })
         .catch(() => {
           setIsOpenAlertDialog('Unable to your account information.');
+          setIsOpen(false);
         });
       setIsSpeener(false);
       setIsOpen(!isOpen);
