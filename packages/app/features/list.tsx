@@ -1,4 +1,4 @@
-import { Button, Card, H1, H2, Paragraph, ScrollView, SheetBase, XStack, YStack } from '@my/ui';
+import { Button, Card, H1, H2, Paragraph, ScrollView, SheetBase, XStack, YStack, Spinner } from '@my/ui';
 import { Image } from '@tamagui/image';
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Dimensions } from 'react-native';
@@ -52,11 +52,13 @@ export function MonstersList(props: ListProps) {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [dialogMessage, setDialogMessage] = useState<string>('');
-
+  const [isSpinner, setIsSpinner] = useState<boolean>(false);
+  
   const router = useRouter();
 
   // モンスターの情報をサーバーより取得する
   const handleGetMonsters = async () => {
+    setIsSpinner(true);
     const node = await getActiveNode();
     const options = {
       method: 'POST',
@@ -73,6 +75,7 @@ export function MonstersList(props: ListProps) {
     } else {
       setMonsters(monsters as Monsters[]);
     }
+    setIsSpinner(false);
     // setMonsters(DUMMY_RESPONSE);
   };
 
@@ -139,6 +142,7 @@ export function MonstersList(props: ListProps) {
       </XStack>
       {/* monsters */}
       <XStack justifyContent="space-around" flexWrap="wrap" flexDirection="row">
+        {isSpinner ? <Spinner size="large" color="$green10" margin="100"/> : <></>}
         {monsters
           .filter((e) => e.rarity === rarity)
           .map((item, index) => (
