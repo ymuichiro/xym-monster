@@ -21,7 +21,7 @@ import {
   TransferTransaction,
   UncommonMonsters,
   filterXDayTransactions,
-  getPreviousDayUtcTimestamp,
+  getPreviousHoursUtcTimestamp,
   isMobileDevice,
 } from 'symbol';
 
@@ -109,7 +109,7 @@ export function Start(): JSX.Element {
         LegendaryMonsters
       );
       const node = await getActiveNode();
-      const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
+      const previous23HoursUtcTimestamp = getPreviousHoursUtcTimestamp(23);
 
       const t = await TransactionService.searchConfirmedTransactions(node, {
         type: [16724],
@@ -118,9 +118,11 @@ export function Start(): JSX.Element {
         pageSize: 20,
         order: Order.Desc,
       });
-      const txs = filterXDayTransactions(t.data, previous1DayUtcTimestamp);
+      const txs = filterXDayTransactions(t.data, previous23HoursUtcTimestamp);
+      console.log(previous23HoursUtcTimestamp)
       if(txs.length != 0){
         const lastGacha = new Date(Number(txs[txs.length - 1].meta.timestamp) + 1615853185 * 1000);
+        console.log(lastGacha)
         console.log(formatDate(lastGacha))
         if (txs.length >= limit) {
           setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
@@ -223,13 +225,13 @@ export function Start(): JSX.Element {
   };
 
   const formatDate = (date: Date) => {
-    const nextDay = new Date(date);
-    nextDay.setDate(nextDay.getDate() + 1);
-    const month = nextDay.getMonth() + 1;
-    const day = nextDay.getDate();
-    const hours = nextDay.getHours();
-    const minutes = nextDay.getMinutes();
-    const seconds = nextDay.getSeconds();
+    const next23Hours = new Date(date);
+    next23Hours.setHours(next23Hours.getHours() + 23);
+    const month = next23Hours.getMonth() + 1;
+    const day = next23Hours.getDate();
+    const hours = next23Hours.getHours();
+    const minutes = next23Hours.getMinutes();
+    const seconds = next23Hours.getSeconds();
     return month + '/' + day + ' ' + hours + ':' + minutes + ':' + seconds;
   }
 

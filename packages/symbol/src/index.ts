@@ -1,4 +1,4 @@
-export { hexToAddress, getDataFromApi, getPreviousDayUtcTimestamp, filterXDayTransactions } from './utils/utils';
+export { hexToAddress, getDataFromApi, getPreviousHoursUtcTimestamp, filterXDayTransactions } from './utils/utils';
 export { default as isMobileDevice } from './utils/isMobileDevice';
 export { hexToUint8, utf8ToHex, uint8ToHex } from './utils/converter';
 export { default as AccountService } from './services/AccountService';

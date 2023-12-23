@@ -85,7 +85,7 @@ export function hexToAddress(recipientAddress: string): string {
   return base32.encode(new Uint8Array([...hexToUint8(recipientAddress), 0])).slice(0, -1);
 }
 
-export const getPreviousDayUtcTimestamp = (day: number): number =>  {
+export const getPreviousHoursUtcTimestamp = (hours: number): number =>  {
   // SymbolのネメシスブロックのTimeStamp（MainNet）
   const epocTime = 1615853185 * 1000;
   // UTC時刻の現在のタイムスタンプを取得
@@ -93,8 +93,8 @@ export const getPreviousDayUtcTimestamp = (day: number): number =>  {
   // UTC時刻からDateオブジェクトを作成
   const dateUTC = new Date(currentUTCTimestamp);
   // 1日引く（UTC時刻で操作）
-  dateUTC.setUTCDate(dateUTC.getUTCDate() - day);
-  // UTC時刻での1日前のタイムスタンプを取得
+  dateUTC.setUTCHours(dateUTC.getUTCHours() - hours);
+  // UTC時刻での指定時間前のタイムスタンプを取得
   const previousDayUTCTimestamp = dateUTC.getTime();
   // SymbolのTimeStampに調整する
   return previousDayUTCTimestamp - epocTime;

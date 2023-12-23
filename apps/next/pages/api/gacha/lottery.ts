@@ -10,7 +10,7 @@ import {
     EpicMonsters, 
     LegendaryMonsters, 
     filterXDayTransactions,
-    getPreviousDayUtcTimestamp,
+    getPreviousHoursUtcTimestamp,
 } from 'symbol'
 import symbolSdk from 'symbol-sdk';
 
@@ -157,8 +157,8 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
         return ({ error: `unfortunately, you can not get a new monster: ${error.message}` });
     }
 
-    const previous2DayUtcTimestamp = getPreviousDayUtcTimestamp(2);
-    const previous1DayUtcTimestamp = getPreviousDayUtcTimestamp(1);
+    const previous2DayUtcTimestamp = getPreviousHoursUtcTimestamp(48);
+    const previous23HoursUtcTimestamp = getPreviousHoursUtcTimestamp(23);
 
     const { network, signerPublicKey } = tx.transaction;
     const { hash, timestamp } = tx.meta;
@@ -190,7 +190,7 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
         pageSize: 100,
     })
     txs = txs.concat(unconfirmedTransactions.data);
-    txs = filterXDayTransactions(txs, previous1DayUtcTimestamp);
+    txs = filterXDayTransactions(txs, previous23HoursUtcTimestamp);
 
     if(txs.length >= limit) return ({ error: `You have already exceeded the daily gacha limit of ${limit} times.` });
 
