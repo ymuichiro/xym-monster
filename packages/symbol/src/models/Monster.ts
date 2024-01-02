@@ -35,6 +35,12 @@ export class Monster {
   }
 }
 
+export function getMonsterNameById(id: string): string | null {
+  const allMonsters = [...CommonMonsters, ...UncommonMonsters, ...RareMonsters, ...EpicMonsters, ...LegendaryMonsters];
+  const monster = allMonsters.find(monster => monster.mosaicId === id);
+  return monster ? monster.name : null;
+}
+
 // モンスターのリスト
 export const CommonMonsters: Monster[] = [
   new Monster(1, "ノーマルエッグ", "53C3372632BF946A", MonsterRarity.Common, "FeGjv3X5Ytx5ewbRcotzjeru4oZU7dZCDxGqUM6FvSXXKV"),
