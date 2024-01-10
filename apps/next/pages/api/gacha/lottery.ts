@@ -11,6 +11,7 @@ import {
     LegendaryMonsters, 
     filterXDayTransactions,
     getPreviousHoursUtcTimestamp,
+    getTodaysJstTimestamp,
 } from 'symbol'
 import symbolSdk from 'symbol-sdk';
 
@@ -144,7 +145,6 @@ const Order = {
     Desc: 'desc'
 } as const;
 
-
 async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: string, monsterName?: string, mosaicId?: string, metalId?:string, rarity?: string } | { error: string }>{
     // ガチャの一日の制限回数
     const limit = 5;
@@ -157,13 +157,14 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
         return ({ error: `unfortunately, you can not get a new monster: ${error.message}` });
     }
 
-    const previous2DayUtcTimestamp = getPreviousHoursUtcTimestamp(48);
-    const previous23HoursUtcTimestamp = getPreviousHoursUtcTimestamp(23);
+    // const previous2DayUtcTimestamp = getPreviousHoursUtcTimestamp(48);
+    // const previous23HoursUtcTimestamp = getPreviousHoursUtcTimestamp(23);
+    const todaysJstTimestamp = getTodaysJstTimestamp();
 
     const { network, signerPublicKey } = tx.transaction;
     const { hash, timestamp } = tx.meta;
 
-    if(Number(timestamp) < previous2DayUtcTimestamp) return ({ error: `You will not get a monster in this hash because the deadline(2days) has passed: ${hash}` });
+    // if(Number(timestamp) < previous2DayUtcTimestamp) return ({ error: `You will not get a monster in this hash because the deadline(2days) has passed: ${hash}` });
 
     const facade = network == 152 ? new symbolSdk.facade.SymbolFacade('testnet') : new symbolSdk.facade.SymbolFacade('mainnet');
     const address = facade.network.publicKeyToAddress(new symbolSdk.PublicKey(symbolSdk.utils.hexToUint8(signerPublicKey))).toString();
@@ -190,7 +191,7 @@ async function sendSelectedMosaic(tx: any, node: string): Promise<{ payload: str
         pageSize: 100,
     })
     txs = txs.concat(unconfirmedTransactions.data);
-    txs = filterXDayTransactions(txs, previous23HoursUtcTimestamp);
+    txs = filterXDayTransactions(txs, todaysJstTimestamp);
 
     if(txs.length >= limit) return ({ error: `You have already exceeded the daily gacha limit of ${limit} times.` });
 

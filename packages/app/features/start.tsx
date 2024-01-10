@@ -23,6 +23,7 @@ import {
   filterXDayTransactions,
   getPreviousHoursUtcTimestamp,
   isMobileDevice,
+  getTodaysJstTimestamp,
 } from 'symbol';
 
 import AlertDialogMonster from '../components/AlertDialog';
@@ -109,7 +110,6 @@ export function Start(): JSX.Element {
         LegendaryMonsters
       );
       const node = await getActiveNode();
-      const previous23HoursUtcTimestamp = getPreviousHoursUtcTimestamp(23);
 
       const t = await TransactionService.searchConfirmedTransactions(node, {
         type: [16724],
@@ -118,14 +118,12 @@ export function Start(): JSX.Element {
         pageSize: 20,
         order: Order.Desc,
       });
-      const txs = filterXDayTransactions(t.data, previous23HoursUtcTimestamp);
-      console.log(previous23HoursUtcTimestamp)
+      const todaysJstTimestamp = getTodaysJstTimestamp();
+      const txs = filterXDayTransactions(t.data, todaysJstTimestamp);
       if(txs.length != 0){
-        const lastGacha = new Date(Number(txs[txs.length - 1].meta.timestamp) + 1615853185 * 1000);
-        console.log(lastGacha)
-        console.log(formatDate(lastGacha))
+        const today = new Date(todaysJstTimestamp + 1615853185 * 1000);
         if (txs.length >= limit) {
-          setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(lastGacha)}`);
+          setErrorMessage(`ガチャの一日の上限回数${limit}回に達しました。次回：${formatDate(today)}`);
           setIsSpinner(false);
           return;
         }
@@ -225,13 +223,13 @@ export function Start(): JSX.Element {
   };
 
   const formatDate = (date: Date) => {
-    const next23Hours = new Date(date);
-    next23Hours.setHours(next23Hours.getHours() + 23);
-    const month = next23Hours.getMonth() + 1;
-    const day = next23Hours.getDate();
-    const hours = next23Hours.getHours();
-    const minutes = next23Hours.getMinutes();
-    const seconds = next23Hours.getSeconds();
+    const d = new Date(date);
+    d.setHours(d.getHours() + 24);
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    const hours = String(d.getHours()).padStart(2, '0');
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const seconds = String(d.getSeconds()).padStart(2, '0');
     return month + '/' + day + ' ' + hours + ':' + minutes + ':' + seconds;
   }
 
@@ -366,7 +364,6 @@ function ReportModal(props: ReportModalProps): JSX.Element {
 
   const handleOnChangeSelect1 = (text: string) => {
     if (mosaicId2 === text) {
-      console.log('mosaicId2 === text');
       setMosaicId2('none');
     }
     setMosaicId1(text);
@@ -374,7 +371,6 @@ function ReportModal(props: ReportModalProps): JSX.Element {
 
   const handleOnChangeSelect2 = (text: string) => {
     const amount = props.items.find((item) => item.value === text)?.amount;
-    console.log(mosaicId1 === text, text);
     if (mosaicId1 === text && amount == 1) return;
     if (mosaicId1 === 'none') {
       setMosaicId1(text);

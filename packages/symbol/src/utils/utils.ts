@@ -85,6 +85,21 @@ export function hexToAddress(recipientAddress: string): string {
   return base32.encode(new Uint8Array([...hexToUint8(recipientAddress), 0])).slice(0, -1);
 }
 
+// jstで本日0:00のタイムスタンプを取得する関数
+export const getTodaysJstTimestamp = (): number => {
+  // SymbolのネメシスブロックのTimeStamp（MainNet）
+  const epocTime = 1615853185 * 1000;
+  // UTC時刻の現在のタイムスタンプを取得
+  const currentUTCTimestamp = Date.now();
+  // UTC時刻からDateオブジェクトを作成
+  const utc = new Date(currentUTCTimestamp);
+  utc.setUTCHours(0, 0, 0, 0);
+  // UTC時刻での今日のタイムスタンプを取得
+  const todayStartTimestamp = utc.getTime();
+  // SymbolのTimeStampに調整する
+  return todayStartTimestamp - epocTime - 1000 * 60 * 60 * 9;
+}
+
 export const getPreviousHoursUtcTimestamp = (hours: number): number =>  {
   // SymbolのネメシスブロックのTimeStamp（MainNet）
   const epocTime = 1615853185 * 1000;
