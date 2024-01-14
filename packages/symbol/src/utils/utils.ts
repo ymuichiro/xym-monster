@@ -93,8 +93,11 @@ export const getTodaysJstTimestamp = (): number => {
   const currentUTCTimestamp = Date.now();
   // UTC時刻からDateオブジェクトを作成
   const utc = new Date(currentUTCTimestamp);
+  const h = utc.getUTCHours();
   utc.setUTCHours(0, 0, 0, 0);
-  // UTC時刻での今日のタイムスタンプを取得
+  // 15時以降なら翌日の0時を取得
+  if(h >= 15)
+    utc.setDate(utc.getDate() + 1);
   const todayStartTimestamp = utc.getTime();
   // SymbolのTimeStampに調整する
   return todayStartTimestamp - epocTime - 1000 * 60 * 60 * 9;

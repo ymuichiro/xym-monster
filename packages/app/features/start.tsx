@@ -119,6 +119,8 @@ export function Start(): JSX.Element {
         order: Order.Desc,
       });
       const todaysJstTimestamp = getTodaysJstTimestamp();
+      console.log("todaysJstTimestamp");
+      console.log(new Date(todaysJstTimestamp + 1615853185 * 1000));
       const txs = filterXDayTransactions(t.data, todaysJstTimestamp);
       if(txs.length != 0){
         const today = new Date(todaysJstTimestamp + 1615853185 * 1000);
